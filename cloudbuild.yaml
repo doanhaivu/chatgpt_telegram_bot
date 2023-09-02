@@ -1,0 +1,4 @@
+  steps:
+  # running docker-compose
+  - name: 'docker/compose:2.4'
+    args: ['--env-file', 'config/config.env', 'up', '--build']
