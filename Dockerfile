@@ -1,5 +1,8 @@
 FROM python:3.8-slim
-
+ARG TELEGRAM_BOT_TOKEN=production
+ARG OPENAI_API_KEY=production
+ENV TELEGRAM_BOT_TOKEN $TELEGRAM_BOT_TOKEN
+ENV OPENAI_API_KEY $OPENAI_API_KEY
 RUN \
     set -eux; \
     apt-get update; \

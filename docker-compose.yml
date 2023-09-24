@@ -18,6 +18,12 @@ services:
     build:
       context: "."
       dockerfile: Dockerfile
+      args:
+        - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-production}
+        - OPENAI_API_KEY=${OPENAI_API_KEY:-production}
+    environment: 
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-production}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-production}
     depends_on:
       - mongo
 
