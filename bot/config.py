@@ -1,8 +1,22 @@
 import yaml
+import re
+import os
 import dotenv
 from pathlib import Path
 
 config_dir = Path(__file__).parent.parent.resolve() / "config"
+
+path_matcher = re.compile(r'\$\{([^}^{]+)\}')
+def path_constructor(loader, node):
+  ''' Extract the matched value, expand env variable, and replace the match '''
+  value = node.value
+  match = path_matcher.match(value)
+  env_var = match.group()[2:-1]
+  return os.environ.get(env_var) + value[match.end():]
+
+from yaml import SafeLoader
+yaml.add_implicit_resolver('!path', path_matcher, None, SafeLoader) 
+yaml.add_constructor('!path', path_constructor, SafeLoader)
 
 # load yaml config
 with open(config_dir / "config.yml", 'r') as f:
