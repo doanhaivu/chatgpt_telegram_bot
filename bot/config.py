@@ -12,15 +12,17 @@ def path_constructor(loader, node):
   value = node.value
   match = path_matcher.match(value)
   env_var = match.group()[2:-1]
-  return os.environ.get(env_var) + value[match.end():]
+  env_value = os.environ.get(env_var)
+  if env_value is None:
+    raise ValueError(f"Environment variable {env_var} is not set")
+  return env_value + value[match.end():]
 
-from yaml import SafeLoader
-yaml.add_implicit_resolver('!path', path_matcher, None, SafeLoader) 
-yaml.add_constructor('!path', path_constructor, SafeLoader)
+yaml.add_implicit_resolver('!path', path_matcher)
+yaml.add_constructor('!path', path_constructor)
 
 # load yaml config
 with open(config_dir / "config.yml", 'r') as f:
-    config_yaml = yaml.safe_load(f)
+    config_yaml = yaml.load(f, Loader=yaml.FullLoader)
 
 # load .env config
 config_env = dotenv.dotenv_values(config_dir / "config.env")
