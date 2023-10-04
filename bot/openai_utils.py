@@ -1,3 +1,7 @@
+from typing import Any, List, Dict
+import requests
+import logging
+import sys
 import config
 
 import tiktoken
@@ -18,8 +22,20 @@ OPENAI_COMPLETION_OPTIONS = {
     "presence_penalty": 0,
     "request_timeout": 60.0,
 }
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+# create a StreamHandler and set its output to sys.stdout
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
 
+# create a formatter and add it to the handler
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
 
+# add the handler to the logger
+logger.addHandler(handler)
+
+DATABASE_INTERFACE_BEAR_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOiJjaGF0dmVjdG9yIiwibmFtZSI6IlZ1IiwiaWF0IjoxNjkwNTE3NjI3fQ.5CM3_5CKXpLoHKipj-oM-VtxY_bolVLeYXJ0h9GQwHE"
 class ChatGPT:
     def __init__(self, model="gpt-3.5-turbo"):
         assert model in {"text-davinci-003", "gpt-3.5-turbo-16k", "gpt-3.5-turbo", "gpt-4"}, f"Unknown model: {model}"
@@ -29,12 +45,19 @@ class ChatGPT:
         if chat_mode not in config.chat_modes.keys():
             raise ValueError(f"Chat mode {chat_mode} is not supported")
 
+        # Get chunks from database.
+        chunks_response = query_database(message)
+        chunks = []
+        for result in chunks_response["results"]:
+            for inner_result in result["results"]:
+                chunks.append(inner_result["text"])
+
         n_dialog_messages_before = len(dialog_messages)
         answer = None
         while answer is None:
             try:
                 if self.model in {"gpt-3.5-turbo-16k", "gpt-3.5-turbo", "gpt-4"}:
-                    messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
+                    messages = self._generate_prompt_messages(message, dialog_messages, chat_mode, chunks)
                     r = await openai.ChatCompletion.acreate(
                         model=self.model,
                         messages=messages,
@@ -69,12 +92,19 @@ class ChatGPT:
         if chat_mode not in config.chat_modes.keys():
             raise ValueError(f"Chat mode {chat_mode} is not supported")
 
+        # Get chunks from database.
+        chunks_response = query_database(message)
+        chunks = []
+        for result in chunks_response["results"]:
+            for inner_result in result["results"]:
+                chunks.append(inner_result["text"])
+
         n_dialog_messages_before = len(dialog_messages)
         answer = None
         while answer is None:
             try:
                 if self.model in {"gpt-3.5-turbo-16k", "gpt-3.5-turbo", "gpt-4"}:
-                    messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
+                    messages = self._generate_prompt_messages(message, dialog_messages, chat_mode, chunks)
                     r_gen = await openai.ChatCompletion.acreate(
                         model=self.model,
                         messages=messages,
@@ -134,14 +164,22 @@ class ChatGPT:
 
         return prompt
 
-    def _generate_prompt_messages(self, message, dialog_messages, chat_mode):
+    def _generate_prompt_messages(self, message, dialog_messages, chat_mode, chunks: List[str]):
         prompt = config.chat_modes[chat_mode]["prompt_start"]
 
         messages = [{"role": "system", "content": prompt}]
         for dialog_message in dialog_messages:
             messages.append({"role": "user", "content": dialog_message["user"]})
             messages.append({"role": "assistant", "content": dialog_message["bot"]})
-        messages.append({"role": "user", "content": message})
+        for chunk in chunks:
+            messages.append({
+                "role": "user",
+                "content": chunk
+            })
+            logger.info("[CHUNK] %s", chunk)
+
+        question = _apply_input_prompt_template(message)
+        messages.append({"role": "user", "content": question})
 
         return messages
 
@@ -188,6 +226,36 @@ class ChatGPT:
 
         return n_input_tokens, n_output_tokens
 
+def _apply_input_prompt_template(question: str) -> str:
+        """
+            A helper function that applies additional template on user's question.
+            Prompt engineering could be done here to improve the result. Here I will just use a minimal example.
+        """
+        prompt = f"""
+            By considering above input from me, answer the question: {question}
+        """
+        return prompt
+
+def query_database(query_prompt: str) -> Dict[str, Any]:
+        """
+        Query vector database to retrieve chunk with user's input questions.
+        """
+        url = "https://chatvector.fly.dev/query"
+        headers = {
+            "Content-Type": "application/json",
+            "accept": "application/json",
+            "Authorization": f"Bearer {DATABASE_INTERFACE_BEAR_TOKEN}",
+        }
+        data = {"queries": [{"query": query_prompt, "top_k": 5}]}
+
+        response = requests.post(url, json=data, headers=headers)
+
+        if response.status_code == 200:
+            result = response.json()
+            # process the result
+            return result
+        else:
+            raise ValueError(f"Error: {response.status_code} : {response.content}")
 
 async def transcribe_audio(audio_file):
     r = await openai.Audio.atranscribe("whisper-1", audio_file)
