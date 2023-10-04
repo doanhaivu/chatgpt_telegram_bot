@@ -135,3 +135,4 @@ dmypy.json
 docker-compose.dev.yml
 
 mongodb/
+static/donate/qrcodes/.DS_Store
