@@ -35,7 +35,7 @@ handler.setFormatter(formatter)
 # add the handler to the logger
 logger.addHandler(handler)
 
-DATABASE_INTERFACE_BEAR_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOiJjaGF0dmVjdG9yIiwibmFtZSI6IlZ1IiwiaWF0IjoxNjkwNTE3NjI3fQ.5CM3_5CKXpLoHKipj-oM-VtxY_bolVLeYXJ0h9GQwHE"
+RETRIEVAL_PLUGIN_BEARER_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcHAiOiJjaGF0dmVjdG9yIiwibmFtZSI6IlZ1IiwiaWF0IjoxNjkwNTE3NjI3fQ.5CM3_5CKXpLoHKipj-oM-VtxY_bolVLeYXJ0h9GQwHE"
 class ChatGPT:
     def __init__(self, model="gpt-3.5-turbo"):
         assert model in {"text-davinci-003", "gpt-3.5-turbo-16k", "gpt-3.5-turbo", "gpt-4"}, f"Unknown model: {model}"
@@ -244,7 +244,7 @@ def query_database(query_prompt: str) -> Dict[str, Any]:
         headers = {
             "Content-Type": "application/json",
             "accept": "application/json",
-            "Authorization": f"Bearer {DATABASE_INTERFACE_BEAR_TOKEN}",
+            "Authorization": f"Bearer {RETRIEVAL_PLUGIN_BEARER_TOKEN}",
         }
         data = {"queries": [{"query": query_prompt, "top_k": 5}]}
 
