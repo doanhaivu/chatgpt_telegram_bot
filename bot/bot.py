@@ -8,6 +8,7 @@ import tempfile
 import pydub
 from pathlib import Path
 from datetime import datetime
+from datetime import date
 import openai
 
 import telegram
@@ -202,6 +203,11 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
 
     user_id = update.message.from_user.id
     chat_mode = db.get_user_attribute(user_id, "current_chat_mode")
+    
+    daily_stats = db.get_user_daily_stats(user_id, str(date.today()))
+    if daily_stats["total_token"] >= config.limit_token or daily_stats["total_chat"] >= config.limit_question:
+        await update.message.reply_text("Daily limited reach!!!!")
+        return
 
     if chat_mode == "artist":
         await generate_image_handle(update, context, message=message)
@@ -215,6 +221,7 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
                 await update.message.reply_text(f"Starting new dialog due to timeout (<b>{config.chat_modes[chat_mode]['name']}</b> mode) ✅", parse_mode=ParseMode.HTML)
         db.set_user_attribute(user_id, "last_interaction", datetime.now())
 
+        
         # in case of CancelledError
         n_input_tokens, n_output_tokens = 0, 0
         current_model = db.get_user_attribute(user_id, "current_model")
@@ -282,10 +289,12 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
             )
 
             db.update_n_used_tokens(user_id, current_model, n_input_tokens, n_output_tokens)
+            db.add_new_user_daily_stats(user_id, str(datetime.today()), n_input_tokens + n_output_tokens, 1)
 
         except asyncio.CancelledError:
             # note: intermediate token updates only work when enable_message_streaming=True (config.yml)
             db.update_n_used_tokens(user_id, current_model, n_input_tokens, n_output_tokens)
+            db.add_new_user_daily_stats(user_id, str(datetime.today()), n_input_tokens + n_output_tokens, 1)
             raise
 
         except Exception as e:

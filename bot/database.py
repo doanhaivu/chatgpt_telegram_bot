@@ -14,6 +14,9 @@ class Database:
 
         self.user_collection = self.db["user"]
         self.dialog_collection = self.db["dialog"]
+        self.user_daily_stats_collection = self.db["user_daily_stats"]
+        self.user_daily_stats_collection.create_index([("user_id", 1), ("date", 1)],unique=True)
+        self.system_config_collection = self.db["system_config"]
 
     def check_if_user_exists(self, user_id: int, raise_exception: bool = False):
         if self.user_collection.count_documents({"_id": user_id}) > 0:
@@ -23,7 +26,7 @@ class Database:
                 raise ValueError(f"User {user_id} does not exist")
             else:
                 return False
-
+    
     def add_new_user(
         self,
         user_id: int,
@@ -47,6 +50,7 @@ class Database:
             "current_chat_mode": "assistant",
             "current_model": config.models["available_text_models"][0],
 
+            #total used token
             "n_used_tokens": {},
 
             "n_generated_images": 0,
@@ -55,7 +59,58 @@ class Database:
 
         if not self.check_if_user_exists(user_id):
             self.user_collection.insert_one(user_dict)
-
+            
+    def check_if_user_daily_stats_exist(self, user_id:int, date:datetime, raise_exception: bool = False):
+        if self.user_daily_stats_collection.count_documents({"user_id": user_id, "date": date}) > 0:
+            return True
+        else: 
+            if raise_exception:
+                raise ValueError(f"Stats {user_id} date {date} does not exist")
+            else:
+                return False
+                    
+    def add_new_user_daily_stats(
+        self,
+        user_id: int,
+        date:datetime,
+        total_token: int,
+        total_chat: int,
+    ):
+        user_daily_stats_dict ={
+            "user_id": user_id,
+            "date": date,
+            "total_token": total_token,
+            "total_chat": total_chat
+        }
+        
+        if not self.check_if_user_daily_stats_exist(user_id, date):
+            self.user_daily_stats_collection.insert_one(user_daily_stats_dict)
+        else:
+            document = self.user_daily_stats_collection.find_one({"user_id": user_id, "date":date})
+            newTotalToken = document["total_token"] + total_token
+            newTotalChat = document["total_chat"] + total_chat
+            self.user_daily_stats_collection.update_one(
+                {"user_id": user_id, "date":date},
+                {"$set": {"total_token": newTotalToken, 
+                          "total_chat": newTotalChat}
+                }
+            )
+            
+    def get_user_daily_stats(
+        self,
+        user_id:int,
+        date:datetime
+    ):
+        doc = self.user_daily_stats_collection.find_one({"user_id":user_id,"date":date})
+        if doc :
+            return doc
+        else:
+            return {"user_id":user_id,
+                    "date":date,
+                    "total_token": 0, 
+                    "total_chat": 0
+                    }
+    
     def start_new_dialog(self, user_id: int):
         self.check_if_user_exists(user_id, raise_exception=True)
 
