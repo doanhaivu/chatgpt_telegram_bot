@@ -40,6 +40,7 @@ limit_question = config_yaml.get("limit_question", 100)
 limit_token = config_yaml.get("limit_token", 50000)
 
 # chat_modes
+# đổi chat_modes để đổi ngôn ngữ
 with open(config_dir / "chat_modes.yml", 'r') as f:
     chat_modes = yaml.safe_load(f)
 

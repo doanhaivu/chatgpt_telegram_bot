@@ -204,8 +204,8 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
     user_id = update.message.from_user.id
     chat_mode = db.get_user_attribute(user_id, "current_chat_mode")
     
-    daily_stats = db.get_user_daily_stats(user_id, str(date.today()))
-    if daily_stats["total_token"] >= config.limit_token or daily_stats["total_chat"] >= config.limit_question:
+    
+    if not is_allow_use_api(user_id):
         await update.message.reply_text("Daily limited reach!!!!")
         return
 
@@ -434,6 +434,13 @@ async def cancel_handle(update: Update, context: CallbackContext):
     else:
         await update.message.reply_text("<i>Nothing to cancel...</i>", parse_mode=ParseMode.HTML)
 
+
+def is_allow_use_api(user_id: int):
+    daily_stats = db.get_user_daily_stats(user_id, str(date.today()))
+    if daily_stats["total_token"] >= config.limit_token or daily_stats["total_chat"] >= config.limit_question:
+        return False
+    return True
+    
 
 def get_chat_mode_menu(page_index: int):
     n_chat_modes_per_page = config.n_chat_modes_per_page
