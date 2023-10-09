@@ -205,7 +205,7 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
     chat_mode = db.get_user_attribute(user_id, "current_chat_mode")
     
     if not is_allow_use_api(user_id):
-        await update.message.reply_text("Daily limited reach!!!!")
+        await update.message.reply_text("You've used up your daily quota. Try again tomorrow or subscribe to our premium plan.")
         return
 
     if chat_mode == "artist":
