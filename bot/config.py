@@ -38,6 +38,7 @@ n_chat_modes_per_page = config_yaml.get("n_chat_modes_per_page", 5)
 mongodb_uri = f"mongodb://mongo:{config_env['MONGODB_PORT']}"
 limit_question = config_yaml.get("limit_question", 100)
 limit_token = config_yaml.get("limit_token", 50000)
+unlimit_user = config_yaml["unlimit_users"]
 
 # chat_modes
 # đổi chat_modes để đổi ngôn ngữ
