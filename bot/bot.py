@@ -288,12 +288,12 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
             )
 
             db.update_n_used_tokens(user_id, current_model, n_input_tokens, n_output_tokens)
-            db.add_new_user_daily_stats(user_id, str(datetime.today()), n_input_tokens + n_output_tokens, 1)
+            db.add_new_user_daily_stats(user_id, str(date.today()), n_input_tokens + n_output_tokens, 1)
 
         except asyncio.CancelledError:
             # note: intermediate token updates only work when enable_message_streaming=True (config.yml)
             db.update_n_used_tokens(user_id, current_model, n_input_tokens, n_output_tokens)
-            db.add_new_user_daily_stats(user_id, str(datetime.today()), n_input_tokens + n_output_tokens, 1)
+            db.add_new_user_daily_stats(user_id, str(date.today()), n_input_tokens + n_output_tokens, 1)
             raise
 
         except Exception as e:
