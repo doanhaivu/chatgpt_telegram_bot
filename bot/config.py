@@ -24,7 +24,7 @@ with open(config_dir / "config.yml", 'r') as f:
     config_yaml = yaml.safe_load(f)
     
 # load message
-with open(config_dir / "messages.yml", 'r') as f:
+with open(config_dir / "messages_vi.yml", 'r') as f:
     messages_yaml = yaml.safe_load(f)
 
 # load .env config
