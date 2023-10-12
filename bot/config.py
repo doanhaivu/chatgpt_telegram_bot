@@ -22,6 +22,10 @@ yaml.add_constructor('!path', path_constructor, yaml.SafeLoader)
 # load yaml config
 with open(config_dir / "config.yml", 'r') as f:
     config_yaml = yaml.safe_load(f)
+    
+# load message
+with open(config_dir / "messages_vi.yml", 'r') as f:
+    messages_yaml = yaml.safe_load(f)
 
 # load .env config
 config_env = dotenv.dotenv_values(config_dir / "config.env")
@@ -39,6 +43,13 @@ mongodb_uri = f"mongodb://mongo:{config_env['MONGODB_PORT']}"
 limit_question = config_yaml.get("limit_question", 100)
 limit_token = config_yaml.get("limit_token", 50000)
 unlimit_user = config_yaml["unlimit_users"]
+
+#messages
+hi_msg = messages_yaml["hi_msg"]
+nothing_to_retry = messages_yaml["nothing_to_retry"]
+help_message = messages_yaml["help_message"]
+help_group_message = messages_yaml["help_group_message"]
+
 
 # chat_modes
 # đổi chat_modes để đổi ngôn ngữ

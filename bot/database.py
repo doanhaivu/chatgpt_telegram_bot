@@ -3,6 +3,7 @@ from typing import Optional, Any
 import pymongo
 import uuid
 from datetime import datetime
+from datetime import date
 
 import config
 
@@ -72,7 +73,7 @@ class Database:
     def add_new_user_daily_stats(
         self,
         user_id: int,
-        date:datetime,
+        date: date,
         total_token: int,
         total_chat: int,
     ):
@@ -99,7 +100,7 @@ class Database:
     def get_user_daily_stats(
         self,
         user_id:int,
-        date:datetime
+        date:date
     ):
         doc = self.user_daily_stats_collection.find_one({"user_id":user_id,"date":date})
         if doc :
