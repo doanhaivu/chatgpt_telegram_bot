@@ -10,6 +10,7 @@ from pathlib import Path
 from datetime import datetime
 from datetime import date
 import openai
+import PyPDF2
 
 import telegram
 from telegram import (
@@ -377,6 +378,73 @@ async def voice_message_handle(update: Update, context: CallbackContext):
 
     await message_handle(update, context, message=transcribed_text)
 
+async def image_message_handle(update: Update, context: CallbackContext):
+    user_id = await pre_message_handle(update, context)
+    return
+
+async def video_message_handle(update: Update, context: CallbackContext):
+    user_id = await pre_message_handle(update, context)
+    return
+
+async def text_file_message_handle(update: Update, context: CallbackContext):
+    user_id = await pre_message_handle(update, context)
+    return
+
+async def pre_message_handle(update: Update, context: CallbackContext):
+    # check if bot was mentioned (for group chats)
+    if not await is_bot_mentioned(update, context):
+        return
+
+    await register_user_if_not_exists(update, context, update.message.from_user)
+    if await is_previous_message_not_answered_yet(update, context): return
+
+    user_id = update.message.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+    return user_id
+
+async def pdf_message_handle(update: Update, context: CallbackContext):
+    user_id = await pre_message_handle(update, context)
+
+    file_id = update.message.document.file_id
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir = Path(tmp_dir)
+        pdf_ogg_path = tmp_dir / "pdf.ogg"
+
+        # download
+        new_file = await context.bot.get_file(file_id)
+        await new_file.download_to_drive(pdf_ogg_path)
+
+        # read
+        with open(pdf_ogg_path, "rb") as f:
+            reader = PyPDF2.PdfReader(f)
+            meta = reader.metadata
+            num_pages = len(reader.pages)
+            text = ''
+            for i in range(num_pages):
+                page_text = reader.pages[i].extract_text()
+                text += page_text
+
+    reply = f"Received file title: \n{meta.title}, author: \n{meta.author}"
+    await update.message.reply_text(reply, parse_mode=ParseMode.HTML)
+
+async def doc_message_handle(update: Update, context: CallbackContext):
+    user_id = await pre_message_handle(update, context)
+
+    file_id = update.message.document.file_id
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir = Path(tmp_dir)
+        doc_ogg_path = tmp_dir / "doc.ogg"
+
+        # download
+        new_file = await context.bot.get_file(file_id)
+        await new_file.download_to_drive(doc_ogg_path)
+
+        # read
+        with open(doc_ogg_path, "rb") as f:
+            contents = f.read()
+
+    text = f"Received file with contents:\n{contents}"
+    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 
 async def generate_image_handle(update: Update, context: CallbackContext, message=None):
     await register_user_if_not_exists(update, context, update.message.from_user)
@@ -708,6 +776,12 @@ def run_bot() -> None:
     application.add_handler(CommandHandler("cancel", cancel_handle, filters=user_filter))
 
     application.add_handler(MessageHandler(filters.VOICE & user_filter, voice_message_handle))
+    application.add_handler(MessageHandler(filters.Document.IMAGE & user_filter, image_message_handle))
+    application.add_handler(MessageHandler(filters.Document.TEXT & user_filter, text_file_message_handle))
+    application.add_handler(MessageHandler(filters.Document.VIDEO & user_filter, video_message_handle))
+    application.add_handler(MessageHandler(filters.Document.DOC & user_filter, doc_message_handle))
+    application.add_handler(MessageHandler(filters.Document.DOCX & user_filter, doc_message_handle))
+    application.add_handler(MessageHandler(filters.Document.PDF & user_filter, pdf_message_handle))
 
     application.add_handler(CommandHandler("mode", show_chat_modes_handle, filters=user_filter))
     application.add_handler(CallbackQueryHandler(show_chat_modes_callback_handle, pattern="^show_chat_modes"))
