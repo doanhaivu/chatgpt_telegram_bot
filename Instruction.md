@@ -31,6 +31,7 @@ docker run hello-world
 
 echo -e "\nTELEGRAM_BOT_TOKEN=your telegram token" | tee -a config/config.env
 echo -e "\nOPENAI_API_KEY=your openai api key" | tee -a config/config.env
+echo -e "\nRETRIEVAL_PLUGIN_BEARER_TOKEN=your chatgpt retrieval plugin bearer token" | tee -a config/config.env
 
 # Start the bot
 docker compose --env-file config/config.env up --build -e

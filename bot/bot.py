@@ -36,10 +36,12 @@ import config
 import database
 import openai_utils
 
+from utils import RetrievalUtils
 
 # setup
 db = database.Database()
 logger = logging.getLogger(__name__)
+retrieval_utils = RetrievalUtils(config)
 
 user_semaphores = {}
 user_tasks = {}
@@ -386,6 +388,7 @@ async def pdf_message_handle(update: Update, context: CallbackContext):
     user_id = await pre_message_handle(update, context)
 
     file_id = update.message.document.file_id
+    file_name = update.message.document.file_name
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_dir = Path(tmp_dir)
         pdf_ogg_path = tmp_dir / "pdf.ogg"
@@ -404,8 +407,10 @@ async def pdf_message_handle(update: Update, context: CallbackContext):
                 page_text = reader.pages[i].extract_text()
                 text += page_text
 
-    reply = f"Received file title: \n{meta.title}, author: \n{meta.author}"
+    reply = f"Received file \n{file_name} title: \n{meta.title}, author: \n{meta.author}"
     await update.message.reply_text(reply, parse_mode=ParseMode.HTML)
+    response = await retrieval_utils.upsert(text, file_name, meta.title, file_id, meta.author)
+    await update.message.reply_text(response, parse_mode=ParseMode.HTML)
 
 async def doc_message_handle(update: Update, context: CallbackContext):
     user_id = await pre_message_handle(update, context)
