@@ -54,7 +54,7 @@ help_group_message = messages_yaml["help_group_message"]
 
 # chat_modes
 # đổi chat_modes để đổi ngôn ngữ
-with open(config_dir / "chat_modes.yml", 'r') as f:
+with open(config_dir / "chat_modes_vi.yml", 'r') as f:
     chat_modes = yaml.safe_load(f)
 
 # models

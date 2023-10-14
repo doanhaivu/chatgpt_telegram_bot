@@ -11,6 +11,7 @@ from datetime import datetime
 from datetime import date
 import openai
 import PyPDF2
+import docx
 
 import telegram
 from telegram import (
@@ -407,15 +408,13 @@ async def pdf_message_handle(update: Update, context: CallbackContext):
                 page_text = reader.pages[i].extract_text()
                 text += page_text
 
-    reply = f"Received file \n{file_name} title: \n{meta.title}, author: \n{meta.author}"
-    await update.message.reply_text(reply, parse_mode=ParseMode.HTML)
-    response = await retrieval_utils.upsert(text, file_name, meta.title, file_id, meta.author)
-    await update.message.reply_text(response, parse_mode=ParseMode.HTML)
+    await process_received_content(update, file_name, meta, text, file_id)
 
 async def doc_message_handle(update: Update, context: CallbackContext):
     user_id = await pre_message_handle(update, context)
 
     file_id = update.message.document.file_id
+    file_name = update.message.document.file_name
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_dir = Path(tmp_dir)
         doc_ogg_path = tmp_dir / "doc.ogg"
@@ -425,11 +424,19 @@ async def doc_message_handle(update: Update, context: CallbackContext):
         await new_file.download_to_drive(doc_ogg_path)
 
         # read
-        with open(doc_ogg_path, "rb") as f:
-            contents = f.read()
+        doc = docx.Document(doc_ogg_path)
+        meta = doc.core_properties
+        text = ''
+        for para in doc.paragraphs:
+            text += para.text
 
-    text = f"Received file with contents:\n{contents}"
-    await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+    await process_received_content(update, file_name, meta, text, file_id)
+
+async def process_received_content(update, file_name, meta, text, file_id):
+    reply = f"Received file \n{file_name}, title: \n{meta.title}, author: \n{meta.author}"
+    await update.message.reply_text(reply, parse_mode=ParseMode.HTML)
+    response = await retrieval_utils.upsert(text, file_name, meta.title, file_id, meta.author)
+    await update.message.reply_text(response, parse_mode=ParseMode.HTML)
 
 async def generate_image_handle(update: Update, context: CallbackContext, message=None):
     await register_user_if_not_exists(update, context, update.message.from_user)
