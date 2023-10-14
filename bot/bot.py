@@ -797,7 +797,7 @@ def run_bot() -> None:
     application.add_handler(MessageHandler(filters.Document.IMAGE & user_filter, image_message_handle))
     application.add_handler(MessageHandler(filters.Document.TEXT & user_filter, text_file_message_handle))
     application.add_handler(MessageHandler(filters.Document.VIDEO & user_filter, video_message_handle))
-    application.add_handler(MessageHandler(filters.Document.MIME_TYPE == 'application/vnd.openxmlformats-officedocument.presentationml.presentation' & user_filter, ppt_message_handle))
+    # application.add_handler(MessageHandler(filters.Document.MIME_TYPE == 'application/vnd.openxmlformats-officedocument.presentationml.presentation' & user_filter, ppt_message_handle))
     application.add_handler(MessageHandler(filters.Document.DOCX & user_filter, doc_message_handle))
     application.add_handler(MessageHandler(filters.Document.PDF & user_filter, pdf_message_handle))
 
