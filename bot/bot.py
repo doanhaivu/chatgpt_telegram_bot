@@ -12,6 +12,7 @@ from datetime import date
 import openai
 import PyPDF2
 import docx
+import pptx
 
 import telegram
 from telegram import (
@@ -432,6 +433,31 @@ async def doc_message_handle(update: Update, context: CallbackContext):
 
     await process_received_content(update, file_name, meta, text, file_id)
 
+async def ppt_message_handle(update: Update, context: CallbackContext):
+    user_id = await pre_message_handle(update, context)
+
+    file_id = update.message.document.file_id
+    file_name = update.message.document.file_name
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_dir = Path(tmp_dir)
+        ppt_ogg_path = tmp_dir / "ppt.ogg"
+
+        # download
+        new_file = await context.bot.get_file(file_id)
+        await new_file.download_to_drive(ppt_ogg_path)
+
+        # read
+        prs = pptx.Presentation(ppt_ogg_path)
+
+        meta = prs.core_properties
+        text = ''
+        for slide in prs.slides:
+            for shape in slide.shapes:
+                if hasattr(shape, "text"):
+                    text += shape.text
+
+    await process_received_content(update, file_name, meta, text, file_id)
+
 async def process_received_content(update, file_name, meta, text, file_id):
     reply = f"Received file \n{file_name}, title: \n{meta.title}, author: \n{meta.author}"
     await update.message.reply_text(reply, parse_mode=ParseMode.HTML)
@@ -771,7 +797,7 @@ def run_bot() -> None:
     application.add_handler(MessageHandler(filters.Document.IMAGE & user_filter, image_message_handle))
     application.add_handler(MessageHandler(filters.Document.TEXT & user_filter, text_file_message_handle))
     application.add_handler(MessageHandler(filters.Document.VIDEO & user_filter, video_message_handle))
-    application.add_handler(MessageHandler(filters.Document.DOC & user_filter, doc_message_handle))
+    application.add_handler(MessageHandler(filters.Document.MIME_TYPE == 'application/vnd.openxmlformats-officedocument.presentationml.presentation' & user_filter, ppt_message_handle))
     application.add_handler(MessageHandler(filters.Document.DOCX & user_filter, doc_message_handle))
     application.add_handler(MessageHandler(filters.Document.PDF & user_filter, pdf_message_handle))
 
