@@ -168,18 +168,19 @@ class ChatGPT:
         prompt = config.chat_modes[chat_mode]["prompt_start"]
 
         messages = [{"role": "system", "content": prompt}]
-        for dialog_message in dialog_messages:
-            messages.append({"role": "user", "content": dialog_message["user"]})
-            messages.append({"role": "assistant", "content": dialog_message["bot"]})
+        messages.append({"role": "user", "content": retrieval_utils._apply_input_prompt_template(message)})
+
         for chunk in chunks:
             messages.append({
                 "role": "user",
                 "content": chunk
             })
-            logger.info("[CHUNK] %s", chunk)
 
-        question = retrieval_utils._apply_input_prompt_template(message)
-        messages.append({"role": "user", "content": question})
+        for dialog_message in dialog_messages:
+            messages.append({"role": "user", "content": dialog_message["user"]})
+            messages.append({"role": "assistant", "content": dialog_message["bot"]})
+
+        messages.append({"role": "user", "content": message})
 
         return messages
 

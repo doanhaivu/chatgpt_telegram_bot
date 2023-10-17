@@ -12,12 +12,19 @@ class RetrievalUtils:
                 Prompt engineering could be done here to improve the result. Here I will just use a minimal example.
             """
             prompt = f"""
-                Considering above input from me, answer the question: {question}.
-                Use the input to formulate the answer to the best of your ability.
-                If the input is not enough, or is not relevant, you can use your own words to answer the question but not exceed 200 words. Remember to end your answer with an approriate emoji.
-                If the input is relavent and you don't need more information, you can add to the answer your own words if you think it's necessary, but not exceed 100 words. Remember to separate your answer from the input with an approriate emoji.
+                Use the following pieces of context to answer the question at the end in Vietnamese. 
+                If you don't know the answer, just say that you don't know, don't try to make up an answer. Answer the question only using the given context.
+                Say explicitly if the question cannot be answered using the given text but only with your existing knowledge.
+                Also state explicitly if there is a conflict between what you know already and what is stated in the given text.
             """
-            return prompt
+            prompt_vi = f"""
+                Sử dụng các thông tin sau để trả lời câu hỏi ở cuối.
+                Nếu bạn không biết câu trả lời, hãy nói rằng bạn không biết, đừng cố gắng bịa ra một câu trả lời. Chỉ trả lời câu hỏi dựa trên thông tin đã cho.
+                Nói rõ ràng nếu câu hỏi không thể được trả lời dựa trên nội dung đã cho nhưng có thể nếu dựa trên kiến thức hiện tại của bạn.
+                Cũng hãy nói rõ ràng nếu có sự mâu thuẫn giữa những gì bạn đã biết và những gì được nêu ra trong ngữ cảnh đã cho.
+                Sử dụng tiếng Việt trong câu trả lời của bạn.
+            """
+            return prompt_vi
 
     async def query(self, query_prompt: str) -> Dict[str, Any]:
             """
