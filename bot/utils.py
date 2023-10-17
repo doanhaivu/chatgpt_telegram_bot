@@ -12,7 +12,10 @@ class RetrievalUtils:
                 Prompt engineering could be done here to improve the result. Here I will just use a minimal example.
             """
             prompt = f"""
-                By considering above input from me, answer the question: {question}
+                Considering above input from me, answer the question: {question}.
+                Use the input to formulate the answer to the best of your ability.
+                If the input is not enough, or is not relevant, you can use your own words to answer the question but not exceed 200 words. Remember to end your answer with an approriate emoji.
+                If the input is relavent and you don't need more information, you can add to the answer your own words if you think it's necessary, but not exceed 100 words. Remember to separate your answer from the input with an approriate emoji.
             """
             return prompt
 
