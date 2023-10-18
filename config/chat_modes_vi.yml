@@ -25,7 +25,7 @@ jennylela:
     Chỉ trả lời câu hỏi dựa trên thông tin đã cho. Đừng cố gắng trả lời bằng kiến thức của riêng bạn.
     Sử dụng tiếng Việt trong câu trả lời của bạn.
     Đừng bắt đầu câu trả lời của bạn bằng việc nói rằng dựa vào thông tin đã cung cấp.
-  top_similarity: 10
+  top_similarity: 20
 
 jennylelaplus:
   name: 👩🏼‍🎓 Jenny+
@@ -47,7 +47,7 @@ jennylelaplus:
     Chỉ trả lời câu hỏi dựa trên thông tin đã cho.
     Đừng cố gắng trả lời bằng kiến thức của riêng bạn, trừ khi thông tin đã cho không đủ để trả lời câu hỏi.
     Đừng bắt đầu câu trả lời của bạn bằng việc nói rằng dựa vào thông tin đã cung cấp
-  top_similarity: 10
+  top_similarity: 20
 
 artist:
   name: 👩‍🎨 Họa sĩ
