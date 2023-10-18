@@ -1,32 +1,25 @@
 from typing import Any, Dict
 import uuid
 import aiohttp
-
+import config
 class RetrievalUtils:
     def __init__(self, config):
         self.config = config
 
-    def _apply_input_prompt_template(self, question: str) -> str:
+    def _apply_input_prompt_template(self, question: str, chat_mode="assistant") -> str:
             """
                 A helper function that applies additional template on user's question.
-                Prompt engineering could be done here to improve the result. Here I will just use a minimal example.
+                Prompt engineering could be done here to improve the result.
             """
-            prompt = f"""
-                Use the following pieces of context to answer the question at the end in Vietnamese. 
-                If you don't know the answer, just say that you don't know, don't try to make up an answer. Answer the question only using the given context.
-                Say explicitly if the question cannot be answered using the given text but only with your existing knowledge.
-                Also state explicitly if there is a conflict between what you know already and what is stated in the given text.
-            """
-            prompt_vi = f"""
-                Sử dụng các thông tin sau để trả lời câu hỏi ở cuối.
-                Nếu bạn không biết câu trả lời, hãy nói rằng bạn không biết, đừng cố gắng bịa ra một câu trả lời. Chỉ trả lời câu hỏi dựa trên thông tin đã cho.
-                Nói rõ ràng nếu câu hỏi không thể được trả lời dựa trên nội dung đã cho nhưng có thể nếu dựa trên kiến thức hiện tại của bạn.
-                Cũng hãy nói rõ ràng nếu có sự mâu thuẫn giữa những gì bạn đã biết và những gì được nêu ra trong ngữ cảnh đã cho.
-                Sử dụng tiếng Việt trong câu trả lời của bạn.
-            """
-            return prompt_vi
+            if chat_mode not in config.chat_modes.keys():
+                raise ValueError(f"Chat mode {chat_mode} is not supported")
+            prompt_template = config.chat_modes[chat_mode]["prompt_template"]
+            prompt_template = prompt_template.replace("{question}", question)
+            prompt_template += "\n\n"
 
-    async def query(self, query_prompt: str) -> Dict[str, Any]:
+            return prompt_template
+
+    async def query(self, query_prompt: str, top_similarity=5) -> Dict[str, Any]:
             """
             Query vector database to retrieve chunk with user's input questions.
             """
@@ -36,7 +29,7 @@ class RetrievalUtils:
                 "accept": "application/json",
                 "Authorization": f"Bearer {self.config.retrieval_plugin_bearer_token}",
             }
-            data = {"queries": [{"query": query_prompt, "top_k": 5}]}
+            data = {"queries": [{"query": query_prompt, "top_k": top_similarity}]}
 
             async with aiohttp.ClientSession() as session:
                 async with session.post(url, json=data, headers=headers) as response:

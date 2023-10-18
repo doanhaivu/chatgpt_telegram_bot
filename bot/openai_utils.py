@@ -46,7 +46,7 @@ class ChatGPT:
             raise ValueError(f"Chat mode {chat_mode} is not supported")
 
         # Get chunks from database.
-        chunks_response = await retrieval_utils.query(message)
+        chunks_response = await retrieval_utils.query(message, config.chat_modes[chat_mode]["top_similarity"])
         chunks = []
         for result in chunks_response["results"]:
             for inner_result in result["results"]:
@@ -93,7 +93,7 @@ class ChatGPT:
             raise ValueError(f"Chat mode {chat_mode} is not supported")
 
         # Get chunks from database.
-        chunks_response = await retrieval_utils.query(message)
+        chunks_response = await retrieval_utils.query(message, config.chat_modes[chat_mode]["top_similarity"])
         chunks = []
         for result in chunks_response["results"]:
             for inner_result in result["results"]:
@@ -168,7 +168,7 @@ class ChatGPT:
         prompt = config.chat_modes[chat_mode]["prompt_start"]
 
         messages = [{"role": "system", "content": prompt}]
-        messages.append({"role": "user", "content": retrieval_utils._apply_input_prompt_template(message)})
+        messages.append({"role": "user", "content": retrieval_utils._apply_input_prompt_template(message, chat_mode)})
 
         for chunk in chunks:
             messages.append({
@@ -182,6 +182,8 @@ class ChatGPT:
 
         messages.append({"role": "user", "content": message})
 
+        for element in messages:
+            logger.debug(element)
         return messages
 
     def _postprocess_answer(self, answer):
