@@ -13,7 +13,6 @@ import openai
 import PyPDF2
 import docx
 import pptx
-
 import telegram
 from telegram import (
     Update,
@@ -38,12 +37,14 @@ import config
 import database
 import openai_utils
 
+from elasticsearch_utils import ElasticsearchUtils
 from utils import RetrievalUtils
 
 # setup
 db = database.Database()
 logger = logging.getLogger(__name__)
 retrieval_utils = RetrievalUtils(config)
+es_utils = ElasticsearchUtils(config)
 
 user_semaphores = {}
 user_tasks = {}
@@ -209,7 +210,6 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
         # in case of CancelledError
         n_input_tokens, n_output_tokens = 0, 0
         current_model = db.get_user_attribute(user_id, "current_model")
-
         try:
             # send placeholder message to user
             placeholder_message = await update.message.reply_text("...")
@@ -266,6 +266,9 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
 
             # update user data
             new_dialog_message = {"user": _message, "bot": answer, "date": datetime.now()}
+            now = datetime.now()
+            current_date = now.strftime("%Y-%m-%d")
+            es_utils.put_data("chat-"+current_date, {"user": _message, "bot": answer, "timestamp": now})
             db.set_dialog_messages(
                 user_id,
                 db.get_dialog_messages(user_id, dialog_id=None) + [new_dialog_message],
@@ -286,7 +289,6 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
             logger.error(error_text)
             await update.message.reply_text(error_text)
             return
-
         # send message if some messages were removed from the context
         if n_first_dialog_messages_removed > 0:
             if n_first_dialog_messages_removed == 1:

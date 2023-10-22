@@ -136,3 +136,9 @@ docker-compose.dev.yml
 
 mongodb/
 static/donate/qrcodes/.DS_Store
+
+bot/.DS_Store
+
+.DS_Store
+
+bot/ssl_cert.crt

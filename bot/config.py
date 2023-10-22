@@ -51,6 +51,11 @@ nothing_to_retry = messages_yaml["nothing_to_retry"]
 help_message = messages_yaml["help_message"]
 help_group_message = messages_yaml["help_group_message"]
 
+#elasticsearch
+elasticsearch_endpoint = config_yaml["elasticsearch_endpoint"]
+elasticsearch_ssl_certificate_path = config_yaml["elasticsearch_ssl_certificate_path"]
+elasticsearch_username = config_yaml["elasticsearch_username"]
+elasticsearch_password = config_yaml["elasticsearch_password"]
 
 # chat_modes
 # đổi chat_modes để đổi ngôn ngữ
