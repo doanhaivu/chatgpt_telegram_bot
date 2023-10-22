@@ -23,7 +23,6 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-dummyopenaiapikey}
       - RETRIEVAL_PLUGIN_BEARER_TOKEN=${RETRIEVAL_PLUGIN_BEARER_TOKEN:-dummyretrievalpluginbearertoken}
       - ELASTICSEARCH_ENDPOINT=${ELASTICSEARCH_ENDPOINT:-http://elasticsearch:9200}
-      - ELASTICSEARCH_SSL_CERTIFICATE_PATH=${ELASTICSEARCH_SSL_CERTIFICATE_PATH:-/etc/ssl/certs/ca-certificates.crt}
       - ELASTICSEARCH_USERNAME=${ELASTICSEARCH_USERNAME:-dummyelasticsearchusername}
       - ELASTICSEARCH_PASSWORD=${ELASTICSEARCH_PASSWORD:-dummyelasticsearchpassword}
     depends_on:

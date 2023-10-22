@@ -33,7 +33,6 @@ echo -e "\nTELEGRAM_BOT_TOKEN=your telegram token" | tee -a config/config.env
 echo -e "\nOPENAI_API_KEY=your openai api key" | tee -a config/config.env
 echo -e "\nRETRIEVAL_PLUGIN_BEARER_TOKEN=your chatgpt retrieval plugin bearer token" | tee -a config/config.env
 echo -e "\nELASTICSEARCH_ENDPOINT=your elasticsearch endpoint" | tee -a config/config.env
-echo -e "\nELASTICSEARCH_SSL_CERTIFICATE_PATH=your elasticsearch ssl certificate path" | tee -a config/config.env
 echo -e "\nELASTICSEARCH_USERNAME=your elasticsearch username" | tee -a config/config.env
 echo -e "\nELASTICSEARCH_PASSWORD=your elasticsearch password" | tee -a config/config.env
   ### Or on local 
@@ -41,7 +40,6 @@ echo -e "\nELASTICSEARCH_PASSWORD=your elasticsearch password" | tee -a config/c
   export OPENAI_API_KEY=
   export RETRIEVAL_PLUGIN_BEARER_TOKEN=
   export ELASTICSEARCH_ENDPOINT=
-  export ELASTICSEARCH_SSL_CERTIFICATE_PATH=
   export ELASTICSEARCH_USERNAME=
   export ELASTICSEARCH_PASSWORD=
 

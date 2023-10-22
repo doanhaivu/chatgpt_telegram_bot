@@ -2,7 +2,6 @@ telegram_token: ${TELEGRAM_BOT_TOKEN}
 openai_api_key: ${OPENAI_API_KEY}
 retrieval_plugin_bearer_token: ${RETRIEVAL_PLUGIN_BEARER_TOKEN}
 elasticsearch_endpoint: ${ELASTICSEARCH_ENDPOINT}
-elasticsearch_ssl_certificate_path: ${ELASTICSEARCH_SSL_CERTIFICATE_PATH}
 elasticsearch_username: ${ELASTICSEARCH_USERNAME}
 elasticsearch_password: ${ELASTICSEARCH_PASSWORD}
 openai_api_base: null  # leave null to use default api base or you can put your own base url here

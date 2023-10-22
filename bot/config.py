@@ -60,7 +60,6 @@ help_group_message = messages_yaml["help_group_message"]
 
 #elasticsearch
 elasticsearch_endpoint = config_yaml["elasticsearch_endpoint"]
-elasticsearch_ssl_certificate_path = config_yaml["elasticsearch_ssl_certificate_path"]
 elasticsearch_username = config_yaml["elasticsearch_username"]
 elasticsearch_password = config_yaml["elasticsearch_password"]
 
