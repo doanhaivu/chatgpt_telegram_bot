@@ -2,8 +2,9 @@ from typing import Optional, Any
 
 import pymongo
 import uuid
-from datetime import datetime
+from datetime import datetime, timedelta
 from datetime import date
+from dateutil.relativedelta import relativedelta
 
 import config
 
@@ -18,6 +19,125 @@ class Database:
         self.user_daily_stats_collection = self.db["user_daily_stats"]
         self.user_daily_stats_collection.create_index([("user_id", 1), ("date", 1)],unique=True)
         self.system_config_collection = self.db["system_config"]
+        self.charge_pending_collection = self.db["charge_pending"]
+        self.charge_success_collection = self.db["charge_success"]
+        self.user_contracts_collection = self.db["user_contracts"]
+        self.user_tokens_collection = self.db["user_tokens"]
+        
+    def add_or_update_user_token(self, user_id:int, token:int):
+        find_dict = self.user_tokens_collection.find_one({"_id": user_id})
+        if find_dict == None:
+            token_dict = {
+                "_id": user_id,
+                "user_id": user_id,
+                "token": token,
+                "last_update": datetime.now()
+            }
+            self.user_tokens_collection.insert_one(token_dict)
+        else:
+            self.user_tokens_collection.update_one(
+                {"_id": user_id},
+                {"$set": {"token": find_dict["token"] + token,
+                          "last_update":datetime.now()}
+                }
+            )
+            
+    def add_or_update_user_contract(self, user_id:int, contract_len:int):
+        find_dict = self.user_contracts_collection.find_one({"_id": user_id})
+        if find_dict == None:
+            contr_dict = {
+                "_id": user_id,
+                "user_id": user_id,
+                "contract_len": contract_len,
+                "start": datetime.now(),
+                "last_update": datetime.now()
+            }
+            self.user_contracts_collection.insert_one(contr_dict)
+        else:
+            base_time = datetime(find_dict["start"]) + timedelta(days=find_dict["contract_len"])
+            curr_time = datetime.now()
+            diff = curr_time - base_time
+            contr_len = find_dict["contract_len"]
+            start = find_dict["start"]
+            if diff.seconds > 0:
+                contr_len = contract_len
+                start = curr_time
+            else:
+                contr_len += contract_len                
+            self.user_contracts_collection.update_one(
+                {"_id": user_id},
+                {"$set": {"contract_len": contr_len,
+                          "start":start,
+                          "last_update": datetime.now()}
+                }
+            )
+        
+    def get_charge_pending(
+        self,
+        charge_id:str
+    ):
+        return self.charge_pending_collection.find_one({"_id":charge_id})
+    
+    def check_if_invoice_available(self, charge_id: int, raise_exception: bool = False):
+        if self.charge_pending_collection.count_documents({"_id": charge_id}) > 0:
+            return True
+        else:
+            if raise_exception:
+                raise ValueError(f"Charge {charge_id} does not exist")
+            else:
+                return False
+    
+    def add_new_charge_pending(
+        self,
+        user_id:int,
+        chat_id:int,
+        amount: float,
+        provider: str,
+        method: str
+    ):
+        charge_id = str(datetime.today().timestamp()) + str(user_id) + str(chat_id) + str(uuid.uuid4())
+        charge_dict ={
+            "_id": charge_id,
+            "user_id": user_id,
+            "chat_id": chat_id,
+            "amount": amount,
+            "provider": provider,
+            "method": method,
+            "send_date": datetime.now(),
+            "received_date": None,
+            "status":0
+        }
+        
+        self.charge_pending_collection.insert_one(charge_dict)
+        return charge_id
+    
+    def add_new_charge_success(
+        self,
+        pending_dict:dict
+    ):
+        charge_dict ={
+            "_id": pending_dict["_id"],
+            "user_id": pending_dict["user_id"],
+            "chat_id": pending_dict["chat_id"],
+            "amount": pending_dict["amount"],
+            "provider": pending_dict["provider"],
+            "method": pending_dict["method"],
+            "date": datetime.now()
+        }
+        
+        self.charge_success_collection.insert_one(charge_dict)
+        self.add_or_update_user_contract(charge_dict["user_id"],7)
+        
+    def update_charge_success(self, charge_id:int):
+        charge_dict = self.get_charge_pending(charge_id)
+        if charge_dict != None:
+            self.charge_pending_collection.update_one(
+                {"_id": charge_id},
+                {"$set": {"status": 1,
+                          "received_date":datetime.now()}}
+            )
+            charge_dict["status"] = 1
+            self.add_new_charge_success(charge_dict)
 
     def check_if_user_exists(self, user_id: int, raise_exception: bool = False):
         if self.user_collection.count_documents({"_id": user_id}) > 0:
@@ -27,7 +147,7 @@ class Database:
                 raise ValueError(f"User {user_id} does not exist")
             else:
                 return False
-    
+            
     def add_new_user(
         self,
         user_id: int,
@@ -114,19 +234,24 @@ class Database:
     
     def start_new_dialog(self, user_id: int):
         self.check_if_user_exists(user_id, raise_exception=True)
+        chat_mode = self.get_user_attribute(user_id, "current_chat_mode")
 
-        dialog_id = str(uuid.uuid4())
-        dialog_dict = {
-            "_id": dialog_id,
-            "user_id": user_id,
-            "chat_mode": self.get_user_attribute(user_id, "current_chat_mode"),
-            "start_time": datetime.now(),
-            "model": self.get_user_attribute(user_id, "current_model"),
-            "messages": []
-        }
+        dialog = self.dialog_collection.find_one({"user_id":user_id, "chat_mode":chat_mode})
+        if not dialog:
+            dialog_id = str(uuid.uuid4())
+            dialog_dict = {
+                "_id": dialog_id,
+                "user_id": user_id,
+                "chat_mode": chat_mode,
+                "start_time": datetime.now(),
+                "model": self.get_user_attribute(user_id, "current_model"),
+                "messages": []
+            }
 
-        # add new dialog
-        self.dialog_collection.insert_one(dialog_dict)
+            # add new dialog
+            self.dialog_collection.insert_one(dialog_dict)
+        else:
+            dialog_id = dialog["_id"]
 
         # update user's current dialog
         self.user_collection.update_one(
@@ -135,6 +260,35 @@ class Database:
         )
 
         return dialog_id
+    
+    def get_dialog_by_chat_mode(self, user_id: int, chat_mode: str):
+        self.check_if_user_exists(user_id, raise_exception=True)
+        
+        dialog = self.dialog_collection.find_one({"user_id":user_id, "chat_mode":chat_mode})
+        if not dialog:
+            dialog_id = str(uuid.uuid4())
+            dialog_dict = {
+                "_id": dialog_id,
+                "user_id": user_id,
+                "chat_mode": chat_mode,
+                "start_time": datetime.now(),
+                "model": self.get_user_attribute(user_id, "current_model"),
+                "messages": []
+            }
+
+            # add new dialog
+            self.dialog_collection.insert_one(dialog_dict)
+        else:
+            dialog_id = dialog["_id"]
+            
+        # update user's current dialog
+        self.user_collection.update_one(
+            {"_id": user_id},
+            {"$set": {"current_dialog_id": dialog_id}}
+        )
+
+        return dialog_id
+            
 
     def get_user_attribute(self, user_id: int, key: str):
         self.check_if_user_exists(user_id, raise_exception=True)
@@ -170,7 +324,10 @@ class Database:
             dialog_id = self.get_user_attribute(user_id, "current_dialog_id")
 
         dialog_dict = self.dialog_collection.find_one({"_id": dialog_id, "user_id": user_id})
-        return dialog_dict["messages"]
+        size = len(dialog_dict["messages"])
+        if size > 10:
+            size = 10
+        return dialog_dict["messages"][-10:]
 
     def set_dialog_messages(self, user_id: int, dialog_messages: list, dialog_id: Optional[str] = None):
         self.check_if_user_exists(user_id, raise_exception=True)
