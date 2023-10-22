@@ -21,9 +21,9 @@ yaml.add_implicit_resolver('!path', path_matcher, None, yaml.SafeLoader)
 yaml.add_constructor('!path', path_constructor, yaml.SafeLoader)
 
 # load .env config
-config_env = dotenv.dotenv_values(config_dir / "config.env")
+#config_env = dotenv.dotenv_values(config_dir / "config.env")
 #local
-#config_env = dotenv.dotenv_values(config_dir / "local.env")
+config_env = dotenv.dotenv_values(config_dir / "local.env")
 
 # load yaml config
 #with open(config_dir / "config.yml", 'r', encoding="utf8") as f:
@@ -31,9 +31,9 @@ with open(config_dir / config_env['config_yml'], 'r', encoding="utf8") as f:
     config_yaml = yaml.safe_load(f)
 
 # config parameters
-telegram_token = config_yaml["telegram_token"]
-openai_api_key = config_yaml["openai_api_key"]
-retrieval_plugin_bearer_token = config_yaml["retrieval_plugin_bearer_token"]
+telegram_token = config_env['TELEGRAM_BOT_TOKEN']
+openai_api_key = config_env['OPENAI_API_KEY']
+retrieval_plugin_bearer_token = config_env['RETRIEVAL_PLUGIN_BEARER_TOKEN']
 openai_api_base = config_yaml.get("openai_api_base", None)
 allowed_telegram_usernames = config_yaml["allowed_telegram_usernames"]
 new_dialog_timeout = config_yaml["new_dialog_timeout"]
@@ -59,9 +59,9 @@ help_message = messages_yaml["help_message"]
 help_group_message = messages_yaml["help_group_message"]
 
 #elasticsearch
-elasticsearch_endpoint = config_yaml["elasticsearch_endpoint"]
-elasticsearch_username = config_yaml["elasticsearch_username"]
-elasticsearch_password = config_yaml["elasticsearch_password"]
+elasticsearch_endpoint = config_env['elasticsearch_endpoint']
+elasticsearch_username = config_env['elasticsearch_username']
+elasticsearch_password = config_env['elasticsearch_password']
 
 subsciption_msg = messages_yaml["subsciption_msg"]
 
