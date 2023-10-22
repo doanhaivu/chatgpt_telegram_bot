@@ -1,0 +1,39 @@
+provider_token:
+  stripe: "284685063:TEST:OTUwYjZiNjJhMjFk"
+
+payments:
+  weekly:
+    text: "🍉 Weekly | $2.49"
+    contact_type: "Weekly"
+    description: "Subscription gives you 100,000 tokens every 24 hours. 100,000 tokens is about 70 pages (A4) of text!"
+    providers:
+      stripe:
+        payment_token: "284685063:TEST:OTUwYjZiNjJhMjFk"
+        title: "🌏💳 Visa/Mastercard/etc - $2.49"
+        price: 249
+        method: "card"
+        currency: "USD"
+
+  monthly:
+    text: "🍉 Monthly | $1.35 / week (–45%)"
+    contact_type: "Monthly"
+    description: "Subscription gives you 100,000 tokens every 24 hours. 100,000 tokens is about 70 pages (A4) of text!"
+    providers:
+      stripe:
+        payment_token: "284685063:TEST:OTUwYjZiNjJhMjFk"
+        title: "🌏💳 Visa/Mastercard/etc - $5.99"
+        price: 599
+        method: "card"
+        currency: "USD"
+
+  yearly:
+    text: "🍉 Yearly | $0.96 / week (–60%)"
+    contact_type: "Yearly"
+    description: "Subscription gives you 100,000 tokens every 24 hours. 100,000 tokens is about 70 pages (A4) of text!"
+    providers:
+      stripe:
+        payment_token: "284685063:TEST:OTUwYjZiNjJhMjFk"
+        title: "🌏💳 Visa/Mastercard/etc - $49.99"
+        price: 4999
+        method: "card"
+        currency: "USD"

@@ -19,16 +19,16 @@ def path_constructor(loader, node):
 
 yaml.add_implicit_resolver('!path', path_matcher, None, yaml.SafeLoader)
 yaml.add_constructor('!path', path_constructor, yaml.SafeLoader)
-# load yaml config
-with open(config_dir / "config.yml", 'r') as f:
-    config_yaml = yaml.safe_load(f)
-    
-# load message
-with open(config_dir / "messages_vi.yml", 'r') as f:
-    messages_yaml = yaml.safe_load(f)
 
 # load .env config
 config_env = dotenv.dotenv_values(config_dir / "config.env")
+#local
+#config_env = dotenv.dotenv_values(config_dir / "local.env")
+
+# load yaml config
+#with open(config_dir / "config.yml", 'r', encoding="utf8") as f:
+with open(config_dir / config_env['config_yml'], 'r', encoding="utf8") as f:
+    config_yaml = yaml.safe_load(f)
 
 # config parameters
 telegram_token = config_yaml["telegram_token"]
@@ -40,11 +40,18 @@ new_dialog_timeout = config_yaml["new_dialog_timeout"]
 enable_message_streaming = config_yaml.get("enable_message_streaming", True)
 return_n_generated_images = config_yaml.get("return_n_generated_images", 1)
 n_chat_modes_per_page = config_yaml.get("n_chat_modes_per_page", 5)
-mongodb_uri = f"mongodb://mongo:{config_env['MONGODB_PORT']}"
+
+#mongodb
+mongodb_uri = f"mongodb://{config_env['MONGODB_DOMAIN']}:{config_env['MONGODB_PORT']}"
+
 limit_question = config_yaml.get("limit_question", 100)
 limit_token = config_yaml.get("limit_token", 50000)
 unlimit_user = config_yaml["unlimit_users"]
 
+# load message
+with open(config_dir / config_env['messages_yml'], 'r', encoding="utf8") as f:
+    messages_yaml = yaml.safe_load(f)
+    
 #messages
 hi_msg = messages_yaml["hi_msg"]
 nothing_to_retry = messages_yaml["nothing_to_retry"]
@@ -57,14 +64,22 @@ elasticsearch_ssl_certificate_path = config_yaml["elasticsearch_ssl_certificate_
 elasticsearch_username = config_yaml["elasticsearch_username"]
 elasticsearch_password = config_yaml["elasticsearch_password"]
 
+subsciption_msg = messages_yaml["subsciption_msg"]
+
 # chat_modes
 # đổi chat_modes để đổi ngôn ngữ
-with open(config_dir / "chat_modes_vi.yml", 'r') as f:
+with open(config_dir / config_env['chatmodes_yml'], 'r', encoding="utf8") as f:
     chat_modes = yaml.safe_load(f)
 
 # models
-with open(config_dir / "models.yml", 'r') as f:
+with open(config_dir / config_env['models_yml'], 'r', encoding="utf8") as f:
     models = yaml.safe_load(f)
-
+    
+# payments
+with open(config_dir / config_env['payments_yml'], 'r', encoding="utf8") as f:
+    payment_yml = yaml.safe_load(f)
+    
+payments = payment_yml["payments"]
+provider_tokens = payment_yml["provider_token"]
 # files
 help_group_chat_video_path = Path(__file__).parent.parent.resolve() / "static" / "help_group_chat.mp4"
