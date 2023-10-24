@@ -542,15 +542,17 @@ def is_allow_use_api(user_id: int):
 
 def get_chat_mode_menu(page_index: int):
     n_chat_modes_per_page = config.n_chat_modes_per_page
-    text = f"Select <b>chat mode</b> ({len(config.chat_modes)} modes available):"
+    enabled_chat_modes = {k: v for k, v in config.chat_modes.items() if v.get("enable")}
+
+    text = f"Select <b>chat mode</b> ({len(enabled_chat_modes)} modes available):"
 
     # buttons
-    chat_mode_keys = list(config.chat_modes.keys())
+    chat_mode_keys = list(enabled_chat_modes.keys())
     page_chat_mode_keys = chat_mode_keys[page_index * n_chat_modes_per_page:(page_index + 1) * n_chat_modes_per_page]
 
     keyboard = []
     for chat_mode_key in page_chat_mode_keys:
-        name = config.chat_modes[chat_mode_key]["name"]
+        name = enabled_chat_modes[chat_mode_key]["name"]
         keyboard.append([InlineKeyboardButton(name, callback_data=f"set_chat_mode|{chat_mode_key}")])
 
     # pagination

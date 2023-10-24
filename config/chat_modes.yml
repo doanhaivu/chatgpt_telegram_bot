@@ -9,6 +9,7 @@ assistant:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 jennylela:
   name: 👩🏼‍🎓 Jenny
@@ -26,6 +27,7 @@ jennylela:
     Say explicitly if the question cannot be answered using the given text but only with your existing knowledge.
     Also state explicitly if there is a conflict between what you know already and what is stated in the given text.
   top_similarity: 10
+  enable: true
 
 jennylelaplus:
   name: 👩🏼‍🎓 Jenny+
@@ -45,10 +47,12 @@ jennylelaplus:
     If the input is not enough, or is not relevant, you can use your own words to answer the question but not exceed 200 words. Remember to end your answer with an approriate emoji.
     If the input is relavent and you don't need more information, you can add to the answer your own words if you think it's necessary, but not exceed 100 words. Remember to begin your own answer with an approriate emoji.
   top_similarity: 10
+  enable: false
 
 artist:
   name: 👩‍🎨 Artist
   welcome_message: 👩‍🎨 Hi, I'm <b>Artist</b>. I'll draw anything you write me (e.g. <i>Ginger cat selfie on Times Square, illustration</i>)
+  enable: true
 
 english_tutor:
   name: 🇬🇧 English Tutor
@@ -59,6 +63,7 @@ english_tutor:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 startup_idea_generator:
   name: 💡 Startup Idea Generator
@@ -69,6 +74,7 @@ startup_idea_generator:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 psychologist:
   name: 🧠 Psychologist
@@ -79,6 +85,7 @@ psychologist:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 elon_musk:
   name: 🚀 Elon Musk
@@ -89,6 +96,7 @@ elon_musk:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 motivator:
   name: 🌟 Motivator
@@ -99,6 +107,7 @@ motivator:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 money_maker:
   name: 💰 Money Maker
@@ -116,6 +125,7 @@ money_maker:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 travel_guide:
   name: 🧳 Travel Guide
@@ -126,6 +136,7 @@ travel_guide:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 accountant:
   name: 🧮 Accountant
@@ -136,6 +147,7 @@ accountant:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 movie_expert:
   name: 🎬 Movie Expert
@@ -146,3 +158,4 @@ movie_expert:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true

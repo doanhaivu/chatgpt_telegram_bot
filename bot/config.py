@@ -59,9 +59,9 @@ help_message = messages_yaml["help_message"]
 help_group_message = messages_yaml["help_group_message"]
 
 #elasticsearch
-elasticsearch_endpoint = config_env['elasticsearch_endpoint']
-elasticsearch_username = config_env['elasticsearch_username']
-elasticsearch_password = config_env['elasticsearch_password']
+elasticsearch_endpoint = config_env['ELASTICSEARCH_ENDPOINT']
+elasticsearch_username = config_env['ELASTICSEARCH_USERNAME']
+elasticsearch_password = config_env['ELASTICSEARCH_PASSWORD']
 
 subsciption_msg = messages_yaml["subsciption_msg"]
 

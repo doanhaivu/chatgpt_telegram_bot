@@ -9,6 +9,7 @@ assistant:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 jennylela:
   name: 👩🏼‍🎓 Jenny
@@ -26,6 +27,7 @@ jennylela:
     Sử dụng tiếng Việt trong câu trả lời của bạn.
     Đừng bắt đầu câu trả lời của bạn bằng việc nói rằng dựa vào thông tin đã cung cấp.
   top_similarity: 20
+  enable: true
 
 jennylelaplus:
   name: 👩🏼‍🎓 Jenny+
@@ -48,10 +50,12 @@ jennylelaplus:
     Đừng cố gắng trả lời bằng kiến thức của riêng bạn, trừ khi thông tin đã cho không đủ để trả lời câu hỏi.
     Đừng bắt đầu câu trả lời của bạn bằng việc nói rằng dựa vào thông tin đã cung cấp
   top_similarity: 20
+  enable: false
 
 artist:
   name: 👩‍🎨 Họa sĩ
   welcome_message: 👩‍🎨 Xin chào, Tôi là <b>Họa sĩ</b>. Tôi sẽ vẽ mọi thứ bạn mô tả (Ví dụ như <i>Ginger cat selfie on Times Square, illustration</i>)
+  enable: true
 
 english_tutor:
   name: 🇬🇧 Gia Sư tiếng Anh
@@ -62,6 +66,7 @@ english_tutor:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 startup_idea_generator:
   name: 💡 Trợ lý ý tưởng khởi nghiệp
@@ -72,6 +77,7 @@ startup_idea_generator:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 psychologist:
   name: 🧠 Nhà tâm lý học
@@ -82,6 +88,7 @@ psychologist:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 elon_musk:
   name: 🚀 Elon Musk
@@ -92,6 +99,7 @@ elon_musk:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 motivator:
   name: 🌟 Người tạo động lực
@@ -102,6 +110,7 @@ motivator:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 money_maker:
   name: 💰 Trợ lý kiếm tiền
@@ -119,6 +128,7 @@ money_maker:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 travel_guide:
   name: 🧳 Hướng dẫn viên du lịch
@@ -129,6 +139,7 @@ travel_guide:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 accountant:
   name: 🧮 Kế toán viên
@@ -139,6 +150,7 @@ accountant:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
 
 movie_expert:
   name: 🎬 Chuyên gia điện ảnh
@@ -149,3 +161,4 @@ movie_expert:
   prompt_template: |
     Considering following input from me, answer the question: {question}
   top_similarity: 5
+  enable: true
