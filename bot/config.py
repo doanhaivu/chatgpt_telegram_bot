@@ -21,9 +21,9 @@ yaml.add_implicit_resolver('!path', path_matcher, None, yaml.SafeLoader)
 yaml.add_constructor('!path', path_constructor, yaml.SafeLoader)
 
 # load .env config
-#config_env = dotenv.dotenv_values(config_dir / "config.env")
+config_env = dotenv.dotenv_values(config_dir / "config.env")
 #local
-config_env = dotenv.dotenv_values(config_dir / "local.env")
+#config_env = dotenv.dotenv_values(config_dir / "local.env")
 
 # load yaml config
 #with open(config_dir / "config.yml", 'r', encoding="utf8") as f:

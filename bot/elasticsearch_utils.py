@@ -7,7 +7,6 @@ class ElasticsearchUtils:
     def __init__(self, config):
         self.config = config
         cert_file = os.path.join(os.path.dirname(__file__), "ssl_cert.crt")
-        ssl.match_hostname = lambda cert, hostname: True
         self.es = Elasticsearch(
             [self.config.elasticsearch_endpoint],
             use_ssl=True,
