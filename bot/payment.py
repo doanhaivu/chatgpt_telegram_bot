@@ -16,27 +16,53 @@ from telegram.constants import ParseMode
 
 db = database.Database()
 
-def get_contracts_menu():
+def get_packages_menu():
     text = config.subsciption_msg
-    payment_keys = list(config.payments.keys())
-        
+    package_keys = list(config.packages.keys())
+    
     keyboard = []
-    for payment_key in payment_keys:
-        p_text = config.payments[payment_key]["text"]
-        keyboard.append([InlineKeyboardButton(p_text, callback_data=f"get_providers|{payment_key}")])
+    for package_key in package_keys:
+        p_text = config.packages[package_key]["text"]
+        keyboard.append([InlineKeyboardButton(p_text, callback_data=f"get_package_providers|{package_key}")])
     
     keyboard.append([InlineKeyboardButton("⬅️ Back", callback_data=f"back_balance_menu")])
     reply_markup = InlineKeyboardMarkup(keyboard)
     return text, reply_markup
 
-def get_providers_menu(key:str):
-    contact  = config.payments[key]
+def get_package_providers_menu(key:str):
+    package  = config.packages[key]
+    provider_keys = list(package["providers"].keys())
+    text = package["description"]
+    keyboard = []
+    for provider_key in provider_keys:
+        title = package["providers"][provider_key]["title"]
+        keyboard.append([InlineKeyboardButton(title, callback_data=f"send_invoice_package|{key, provider_key}")])
+        
+    keyboard.append([InlineKeyboardButton("⬅️ Back", callback_data=f"back_packages_menu")])
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    return text, reply_markup
+
+def get_contracts_menu():
+    text = config.subsciption_msg
+    contract_keys = list(config.contracts.keys())
+        
+    keyboard = []
+    for contract_key in contract_keys:
+        p_text = config.contracts[contract_key]["text"]
+        keyboard.append([InlineKeyboardButton(p_text, callback_data=f"get_contract_providers|{contract_key}")])
+    
+    keyboard.append([InlineKeyboardButton("⬅️ Back", callback_data=f"back_balance_menu")])
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    return text, reply_markup
+
+def get_contract_providers_menu(key:str):
+    contact  = config.contracts[key]
     provider_keys = list(contact["providers"].keys())
     text = contact["description"]
     keyboard = []
     for provider_key in provider_keys:
         title = contact["providers"][provider_key]["title"]
-        keyboard.append([InlineKeyboardButton(title, callback_data=f"send_invoice|{key,provider_key}")])
+        keyboard.append([InlineKeyboardButton(title, callback_data=f"send_invoice_contract|{key,provider_key}")])
         
     keyboard.append([InlineKeyboardButton("⬅️ Back", callback_data=f"back_contracts_menu")])
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -85,8 +111,8 @@ def get_balance_menu(user_id: int):
     
     keyboard =[]
     
-    keyboard.append([InlineKeyboardButton("Subcriptions", callback_data=f"get_contracts")])
-    keyboard.append([InlineKeyboardButton("Token packages", callback_data=f"get_tokens")])
+    keyboard.append([InlineKeyboardButton("Subcriptions", callback_data=f"show_contracts_menu")])
+    keyboard.append([InlineKeyboardButton("Token packages", callback_data=f"show_packages_menu")])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -103,5 +129,12 @@ async def back_contracts_menu(update: Update, context: CallbackContext):
     query = update.callback_query
     await query.answer()
     text, reply_markup = get_contracts_menu()
+    
+    await query.message.edit_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    
+async def back_packages_menu(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
+    text, reply_markup = get_packages_menu()
     
     await query.message.edit_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)

@@ -1,7 +1,7 @@
 provider_token:
   stripe: "284685063:TEST:OTUwYjZiNjJhMjFk"
 
-payments:
+contracts:
   weekly:
     text: "🍉 Weekly | $2.49"
     contact_type: "Weekly"
@@ -35,5 +35,61 @@ payments:
         payment_token: "284685063:TEST:OTUwYjZiNjJhMjFk"
         title: "🌏💳 Visa/Mastercard/etc - $49.99"
         price: 4999
+        method: "card"
+        currency: "USD"
+
+packages:
+  B500k:
+    text: "📦 +500,000 Tokens | $5.99"
+    description: "📦 +500,000 Tokens | $5.99 \nTokens can be used at any time. Useful when you need a lot of tokens at once (for example, when writing a book)\n\nChoose a payment method:"
+    token: 500000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $5.99"
+        price: 599
+        method: "card"
+        currency: "USD"
+
+  B1M:
+    text: "📦 +1,000,000 Tokens | $8.99 (-25%)"
+    description: "📦 +1,000,000 Tokens | $8.99 (-25%)\nTokens can be used at any time. Useful when you need a lot of tokens at once (for example, when writing a book)\n\nChoose a payment method:"
+    token: 1000000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $8.99"
+        price: 899
+        method: "card"
+        currency: "USD"
+
+  B3M:
+    text: "📦 +3,000,000 Tokens | $19.99 (-45%)"
+    description: "📦 +3,000,000 Tokens | $19.99 (-45%)\nTokens can be used at any time. Useful when you need a lot of tokens at once (for example, when writing a book)\n\nChoose a payment method:"
+    token: 3000000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $19.99"
+        price: 1999
+        method: "card"
+        currency: "USD"
+
+  B10M:
+    text: "📦 +10,000,000 Tokens | $59.99 (-50%)"
+    description: "📦 +10,000,000 Tokens | $59.99 (-50%)\nTokens can be used at any time. Useful when you need a lot of tokens at once (for example, when writing a book)\n\nChoose a payment method:"
+    token: 10000000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $59.99"
+        price: 5999
+        method: "card"
+        currency: "USD"
+
+  B50M:
+    text: "📦 +50,000,000 Tokens | $249.99 (-60%)"
+    description: "📦 +50,000,000 Tokens | $249.99 (-60%)\nTokens can be used at any time. Useful when you need a lot of tokens at once (for example, when writing a book)\n\nChoose a payment method:"
+    token: 50000000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $249.99"
+        price: 24999
         method: "card"
         currency: "USD"
