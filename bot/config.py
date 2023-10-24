@@ -21,9 +21,9 @@ yaml.add_implicit_resolver('!path', path_matcher, None, yaml.SafeLoader)
 yaml.add_constructor('!path', path_constructor, yaml.SafeLoader)
 
 # load .env config
-#config_env = dotenv.dotenv_values(config_dir / "config.env")
+config_env = dotenv.dotenv_values(config_dir / "config.env")
 #local
-config_env = dotenv.dotenv_values(config_dir / "local.env")
+#config_env = dotenv.dotenv_values(config_dir / "local.env")
 
 # load yaml config
 #with open(config_dir / "config.yml", 'r', encoding="utf8") as f:
@@ -59,9 +59,9 @@ help_message = messages_yaml["help_message"]
 help_group_message = messages_yaml["help_group_message"]
 
 #elasticsearch
-elasticsearch_endpoint = config_env['elasticsearch_endpoint']
-elasticsearch_username = config_env['elasticsearch_username']
-elasticsearch_password = config_env['elasticsearch_password']
+elasticsearch_endpoint = config_env['ELASTICSEARCH_ENDPOINT']
+elasticsearch_username = config_env['ELASTICSEARCH_USERNAME']
+elasticsearch_password = config_env['ELASTICSEARCH_PASSWORD']
 
 subsciption_msg = messages_yaml["subsciption_msg"]
 
