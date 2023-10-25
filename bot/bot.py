@@ -695,7 +695,7 @@ async def show_balance_handle(update: Update, context: CallbackContext):
     
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
     
-async def get_contracts(update: Update, context: CallbackContext):
+async def show_contracts_menu(update: Update, context: CallbackContext):
     query = update.callback_query
     await query.answer()
     
@@ -707,8 +707,21 @@ async def get_contracts(update: Update, context: CallbackContext):
     text, reply_markup = payment.get_contracts_menu()
     
     await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+
+async def show_packages_menu(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
     
-async def get_providers(update: Update, context: CallbackContext):
+    await register_user_if_not_exists(query, context, query.from_user)
+
+    user_id = query.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+
+    text, reply_markup = payment.get_packages_menu()
+    
+    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    
+async def show_contract_providers_menu(update: Update, context: CallbackContext):
     query = update.callback_query
     await query.answer()
     key = query.data.split("|")[1]
@@ -717,37 +730,84 @@ async def get_providers(update: Update, context: CallbackContext):
     user_id = query.from_user.id
     db.set_user_attribute(user_id, "last_interaction", datetime.now())
 
-    text, reply_markup = payment.get_providers_menu(key)
+    text, reply_markup = payment.get_contract_providers_menu(key)
+    
+    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    
+async def show_package_providers_menu(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
+    key = query.data.split("|")[1]
+    await register_user_if_not_exists(query, context, query.from_user)
+
+    user_id = query.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+
+    text, reply_markup = payment.get_package_providers_menu(key)
     
     await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
-async def send_invoice(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def send_invoice_contract(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
     await register_user_if_not_exists(query, context, query.from_user)
     
     params = query.data.split("|")[1]
     list_params = ast.literal_eval(params)
-    payment = config.payments[list_params[0]]
-    contract = payment["providers"][list_params[1]]
+    contract = config.contracts[list_params[0]]
+    data = contract["providers"][list_params[1]]
     
     user_id = query.from_user.id
     db.set_user_attribute(user_id, "last_interaction", datetime.now())
     """Sends an invoice without shipping-payment."""
     chat_id = query.message.chat_id
-    title = payment["text"]
-    description = payment["description"]
+    title = contract["text"]
+    description = contract["description"]
     
     # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
     currency = "USD"
     # price in dollars
-    price = contract["price"]
+    price = data["price"]
     # price * 100 so as to include 2 decimal points
-    prices = [LabeledPrice(contract["title"], price)]
+    prices = [LabeledPrice(data["title"], price)]
     id = db.add_new_charge_pending(user_id, chat_id, price, list_params[1], "visa")
     # select a payload just for you to recognize its the donation from your bot
     payload = id
-    payment_token = contract["payment_token"]
+    payment_token = config.provider_tokens[list_params[1]]
+    # optionally pass need_name=True, need_phone_number=True,
+    # need_email=True, need_shipping_address=True, is_flexible=True
+    await context.bot.send_invoice(
+        chat_id, title, description, payload, payment_token, currency, prices
+    )
+    
+async def send_invoice_package(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    query = update.callback_query
+    await query.answer()
+    await register_user_if_not_exists(query, context, query.from_user)
+    
+    params = query.data.split("|")[1]
+    list_params = ast.literal_eval(params)
+    package = config.packages[list_params[0]]
+    data = package["providers"][list_params[1]]
+    
+    user_id = query.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+    """Sends an invoice without shipping-payment."""
+    chat_id = query.message.chat_id
+    title = package["text"]
+    description = package["description"]
+    
+    # In order to get a provider_token see https://core.telegram.org/bots/payments#getting-a-token
+    currency = "USD"
+    # price in dollars
+    price = data["price"]
+    token = package["token"]
+    # price * 100 so as to include 2 decimal points
+    prices = [LabeledPrice(data["title"], price)]
+    id = db.add_new_package_pending(user_id, chat_id, price, token, list_params[1], "visa")
+    # select a payload just for you to recognize its the donation from your bot
+    payload = id
+    payment_token = config.provider_tokens[list_params[1]]
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
     await context.bot.send_invoice(
@@ -867,11 +927,15 @@ def run_bot() -> None:
     application.add_handler(CommandHandler("balance", show_balance_handle, filters=user_filter))
     
     #subscription
-    application.add_handler(CallbackQueryHandler(get_contracts, pattern="^get_contracts"))
-    application.add_handler(CallbackQueryHandler(get_providers, pattern="^get_providers"))
-    application.add_handler(CallbackQueryHandler(send_invoice, pattern="^send_invoice"))
+    application.add_handler(CallbackQueryHandler(show_contracts_menu, pattern="^show_contracts_menu"))
+    application.add_handler(CallbackQueryHandler(show_packages_menu, pattern="^show_packages_menu"))
+    application.add_handler(CallbackQueryHandler(show_contract_providers_menu, pattern="^get_contract_providers"))
+    application.add_handler(CallbackQueryHandler(show_package_providers_menu, pattern="^get_package_providers"))
+    application.add_handler(CallbackQueryHandler(send_invoice_contract, pattern="^send_invoice_contract"))
+    application.add_handler(CallbackQueryHandler(send_invoice_package, pattern="^send_invoice_package"))
     application.add_handler(CallbackQueryHandler(payment.back_balance_menu, pattern="^back_balance_menu"))
     application.add_handler(CallbackQueryHandler(payment.back_contracts_menu, pattern="^back_contracts_menu"))
+    application.add_handler(CallbackQueryHandler(payment.back_packages_menu, pattern="^back_packages_menu"))
     
     # Pre-checkout handler to final check
     application.add_handler(PreCheckoutQueryHandler(precheckout_callback))
@@ -889,3 +953,4 @@ def run_bot() -> None:
 
 if __name__ == "__main__":
     run_bot()
+

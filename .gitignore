@@ -142,5 +142,5 @@ bot/.DS_Store
 .DS_Store
 
 bot/ssl_cert.crt
-
 config/local.env
+config/local.yml

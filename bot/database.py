@@ -21,24 +21,139 @@ class Database:
         self.system_config_collection = self.db["system_config"]
         self.charge_pending_collection = self.db["charge_pending"]
         self.charge_success_collection = self.db["charge_success"]
+        self.package_pending_collection = self.db["package_pending"]
+        self.package_success_collection = self.db["package_success"]
         self.user_contracts_collection = self.db["user_contracts"]
         self.user_tokens_collection = self.db["user_tokens"]
         
-    def add_or_update_user_token(self, user_id:int, token:int):
+    def get_package_pending(
+        self,
+        charge_id:str
+    ):
+        return self.package_pending_collection.find_one({"_id":charge_id})
+        
+    def add_new_package_pending(
+        self,
+        user_id:int,
+        chat_id:int,
+        amount: float,
+        token_received:float,
+        provider: str,
+        method: str
+    ):
+        charge_id = str(datetime.today().timestamp()) + str(user_id) + str(chat_id) + str(uuid.uuid4())
+        charge_dict ={
+            "_id": charge_id,
+            "user_id": user_id,
+            "chat_id": chat_id,
+            "amount": amount,
+            "token_received":token_received,
+            "provider": provider,
+            "method": method,
+            "send_date": datetime.now(),
+            "received_date": None,
+            "status":0
+        }
+        
+        self.package_pending_collection.insert_one(charge_dict)
+        return charge_id
+    
+    def add_new_package_success(
+        self,
+        pending_dict:dict
+    ):
+        charge_dict ={
+            "_id": pending_dict["_id"],
+            "user_id": pending_dict["user_id"],
+            "chat_id": pending_dict["chat_id"],
+            "amount": pending_dict["amount"],
+            "token_received": pending_dict["token_received"],
+            "provider": pending_dict["provider"],
+            "method": pending_dict["method"],
+            "date": datetime.now()
+        }
+        
+        self.package_success_collection.insert_one(charge_dict)
+        self.user_buy_package(pending_dict["user_id"], pending_dict["token_received"])
+        
+    def update_package_success(self, charge_id:int):
+        charge_dict = self.get_package_pending(charge_id)
+        if charge_dict != None:
+            self.package_pending_collection.update_one(
+                {"_id": charge_id},
+                {"$set": {"status": 1,
+                          "received_date":datetime.now()}}
+            )
+            charge_dict["status"] = 1
+            self.add_new_package_success(charge_dict)
+        
+    def new_user_token(self, user_id:int, token:int):
         find_dict = self.user_tokens_collection.find_one({"_id": user_id})
         if find_dict == None:
             token_dict = {
                 "_id": user_id,
                 "user_id": user_id,
-                "token": token,
+                "token_free_daily":5000,
+                "token_daily":0, #from contract
+                "token_pack": token, #from token packages
+                "last_update": datetime.now()
+            }
+            self.user_tokens_collection.insert_one(token_dict)
+            
+    def user_buy_package(self, user_id:int, token: int):
+        find_dict = self.user_tokens_collection.find_one({"_id": user_id})
+        if find_dict == None:
+            token_dict = {
+                "_id": user_id,
+                "user_id": user_id,
+                "token_free_daily":5000,
+                "token_daily":0, #from contract
+                "token_pack": token, #from token packages
                 "last_update": datetime.now()
             }
             self.user_tokens_collection.insert_one(token_dict)
         else:
+            new_pack = find_dict["token_pack"] + token
             self.user_tokens_collection.update_one(
                 {"_id": user_id},
-                {"$set": {"token": find_dict["token"] + token,
-                          "last_update":datetime.now()}
+                {"$set": {"token_pack":new_pack,
+                          "last_update": datetime.now()}
+                }
+            )
+    
+    def user_use_token(self, user_id:int, token:int):
+        find_dict = self.user_tokens_collection.find_one({"_id": user_id})
+        if find_dict == None:
+            token_dict = {
+                "_id": user_id,
+                "user_id": user_id,
+                "token_free_daily":5000 - token,
+                "token_daily":0, #from contract
+                "token_pack": 0, #from token packages
+                "last_update": datetime.now()
+            }
+            self.user_tokens_collection.insert_one(token_dict)
+        else:
+            new_free = find_dict["token_free_daily"]
+            new_daily = find_dict["token_daily"]
+            new_pack = find_dict["token_pack"]
+            
+            if new_free<token:
+                new_free = 0
+                token = token - new_free
+            if new_daily < token:
+                new_daily = 0
+                token = token - new_daily
+            if new_pack < token:
+                new_pack = 0
+                token = token - new_pack
+                
+            self.user_tokens_collection.update_one(
+                {"_id": user_id},
+                {"$set": {"token_free_daily": new_free,
+                          "token_daily":new_daily,
+                          "token_pack":new_pack,
+                          "last_update": datetime.now()}
                 }
             )
             
@@ -81,11 +196,13 @@ class Database:
     def check_if_invoice_available(self, charge_id: int, raise_exception: bool = False):
         if self.charge_pending_collection.count_documents({"_id": charge_id}) > 0:
             return True
+        if self.package_pending_collection.count_documents({"_id": charge_id}) > 0:
+            return True
+        
+        if raise_exception:
+            raise ValueError(f"Charge {charge_id} does not exist")
         else:
-            if raise_exception:
-                raise ValueError(f"Charge {charge_id} does not exist")
-            else:
-                return False
+            return False
     
     def add_new_charge_pending(
         self,
@@ -138,6 +255,16 @@ class Database:
             )
             charge_dict["status"] = 1
             self.add_new_charge_success(charge_dict)
+        else:
+            pack_dict = self.get_package_pending(charge_id)
+            if pack_dict != None:
+                self.package_pending_collection.update_one(
+                    {"_id": charge_id},
+                    {"$set": {"status": 1,
+                              "received_date":datetime.now()}}
+                )
+                pack_dict["status"] = 1
+                self.add_new_package_success(pack_dict)
 
     def check_if_user_exists(self, user_id: int, raise_exception: bool = False):
         if self.user_collection.count_documents({"_id": user_id}) > 0:

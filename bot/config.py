@@ -78,7 +78,8 @@ with open(config_dir / config_env['models_yml'], 'r', encoding="utf8") as f:
 with open(config_dir / config_env['payments_yml'], 'r', encoding="utf8") as f:
     payment_yml = yaml.safe_load(f)
     
-payments = payment_yml["payments"]
+contracts = payment_yml["contracts"]
+packages = payment_yml["packages"]
 provider_tokens = payment_yml["provider_token"]
 # files
 help_group_chat_video_path = Path(__file__).parent.parent.resolve() / "static" / "help_group_chat.mp4"
