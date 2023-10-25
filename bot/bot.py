@@ -60,8 +60,6 @@ HELP_MESSAGE = config.help_message
 
 HELP_GROUP_CHAT_MESSAGE = config.help_group_message
 
-PAYMENT_PROVIDER_TOKEN = "284685063:TEST:OTUwYjZiNjJhMjFk"
-
 def split_text_into_chunks(text, chunk_size):
     for i in range(0, len(text), chunk_size):
         yield text[i:i + chunk_size]
@@ -534,9 +532,14 @@ def is_allow_use_api(user_id: int):
     arr_unlimit = config.unlimit_user
     if arr_unlimit.count(user_id) > 0:
         return True
+    user_token = db.get_user_token(user_id)
+    user_contract = db.get_user_active_contract(user_id)
     daily_stats = db.get_user_daily_stats(user_id, str(date.today()))
-    if daily_stats["total_token"] >= config.limit_token or daily_stats["total_chat"] >= config.limit_question:
-        return False
+    if user_contract == None and user_token["token_pack"] == 0:
+        if user_token["token_free_daily"] == 0 or daily_stats["total_chat"] >= config.limit_question:
+            return False
+        if user_token["token_daily"] == 0:
+            return False
     return True
     
 

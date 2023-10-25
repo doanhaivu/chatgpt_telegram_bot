@@ -87,75 +87,92 @@ class Database:
             charge_dict["status"] = 1
             self.add_new_package_success(charge_dict)
         
-    def new_user_token(self, user_id:int, token:int):
-        find_dict = self.user_tokens_collection.find_one({"_id": user_id})
-        if find_dict == None:
-            token_dict = {
-                "_id": user_id,
-                "user_id": user_id,
-                "token_free_daily":5000,
-                "token_daily":0, #from contract
-                "token_pack": token, #from token packages
-                "last_update": datetime.now()
+    #xem lai
+    def user_buy_contract(self, user_id:int, token: int):
+        find_dict = self.get_user_token(user_id)
+        diff = date.today() - date.fromisoformat(find_dict["last_received_daily"])
+        newtoken = 0
+        last_received_daily = find_dict["last_received_daily"]
+        if diff.days >0:
+            newtoken = token
+            last_received_daily = date.today
+        self.user_tokens_collection.update_one(
+            {"_id": user_id},
+            {"$set":{"token_daily":newtoken,
+                    "last_received_daily":last_received_daily,
+                    "last_update": datetime.now()}
             }
-            self.user_tokens_collection.insert_one(token_dict)
+        )
             
     def user_buy_package(self, user_id:int, token: int):
-        find_dict = self.user_tokens_collection.find_one({"_id": user_id})
-        if find_dict == None:
+        find_dict = self.get_user_token(user_id)
+        
+        new_pack = find_dict["token_pack"] + token
+        self.user_tokens_collection.update_one(
+            {"_id": user_id},
+            {"$set":{"token_pack":new_pack,
+                    "last_update": datetime.now()}
+            }
+        )
+    
+    def user_use_token(self, user_id:int, token:int):
+        token_dict = self.get_user_token(user_id)
+        
+        new_free = token_dict["token_free_daily"]
+        new_daily = token_dict["token_daily"]
+        new_pack = token_dict["token_pack"]
+        
+        if new_free<token:
+            new_free = 0
+            token = token - new_free
+        if new_daily < token:
+            new_daily = 0
+            token = token - new_daily
+        if new_pack < token:
+            new_pack = 0
+            token = token - new_pack
+            
+        self.user_tokens_collection.update_one(
+            {"_id": user_id},
+            {"$set": {"token_free_daily": new_free,
+                    "token_daily":new_daily,
+                    "token_pack":new_pack,
+                    "last_update": datetime.now()}
+            }
+        )
+            
+    def get_user_token(self, user_id:int):
+        if self.user_tokens_collection.count_documents({"_id":user_id}) == 0:
             token_dict = {
                 "_id": user_id,
                 "user_id": user_id,
                 "token_free_daily":5000,
                 "token_daily":0, #from contract
-                "token_pack": token, #from token packages
-                "last_update": datetime.now()
-            }
-            self.user_tokens_collection.insert_one(token_dict)
-        else:
-            new_pack = find_dict["token_pack"] + token
-            self.user_tokens_collection.update_one(
-                {"_id": user_id},
-                {"$set": {"token_pack":new_pack,
-                          "last_update": datetime.now()}
-                }
-            )
-    
-    def user_use_token(self, user_id:int, token:int):
-        find_dict = self.user_tokens_collection.find_one({"_id": user_id})
-        if find_dict == None:
-            token_dict = {
-                "_id": user_id,
-                "user_id": user_id,
-                "token_free_daily":5000 - token,
-                "token_daily":0, #from contract
+                "last_received_daily": str(date.today() - timedelta(days=1)),
                 "token_pack": 0, #from token packages
                 "last_update": datetime.now()
             }
             self.user_tokens_collection.insert_one(token_dict)
-        else:
-            new_free = find_dict["token_free_daily"]
-            new_daily = find_dict["token_daily"]
-            new_pack = find_dict["token_pack"]
-            
-            if new_free<token:
-                new_free = 0
-                token = token - new_free
-            if new_daily < token:
-                new_daily = 0
-                token = token - new_daily
-            if new_pack < token:
-                new_pack = 0
-                token = token - new_pack
-                
-            self.user_tokens_collection.update_one(
-                {"_id": user_id},
-                {"$set": {"token_free_daily": new_free,
-                          "token_daily":new_daily,
-                          "token_pack":new_pack,
-                          "last_update": datetime.now()}
-                }
-            )
+        token_dict = self.user_tokens_collection.find_one({"_id":user_id})
+        diff = date.today() - date.fromisoformat(token_dict["last_received_daily"])
+        contract = self.get_user_active_contract(user_id)
+        if diff.days >0 and contract != None:
+            token_dict["token_daily"] = 100000
+            token_dict["last_received_daily"] = date.today()
+            self.user_tokens_collection.update_one( {"_id": user_id},
+                                                    {"$set": {"token_free_daily": 5000,
+                                                            "token_daily":100000,
+                                                            "last_received_daily":str(date.today()),
+                                                            "last_update": datetime.now()}
+                                                    })
+        return self.user_tokens_collection.find_one({"_id":user_id})
+        
+    def get_user_active_contract(self, user_id:int):
+        user_contract = self.user_contracts_collection.find_one({"_id": user_id})
+        diff = date.today() - (datetime.fromisoformat(str(user_contract["start"])).date()+ timedelta(days=user_contract["contract_len"]))
+        if diff.days > 0:
+            return None
+        return user_contract
             
     def add_or_update_user_contract(self, user_id:int, contract_len:int):
         find_dict = self.user_contracts_collection.find_one({"_id": user_id})
@@ -307,6 +324,7 @@ class Database:
 
         if not self.check_if_user_exists(user_id):
             self.user_collection.insert_one(user_dict)
+            self.get_user_token(user_id)
             
     def check_if_user_daily_stats_exist(self, user_id:int, date:datetime, raise_exception: bool = False):
         if self.user_daily_stats_collection.count_documents({"user_id": user_id, "date": date}) > 0:
@@ -452,9 +470,9 @@ class Database:
 
         dialog_dict = self.dialog_collection.find_one({"_id": dialog_id, "user_id": user_id})
         size = len(dialog_dict["messages"])
-        if size > 10:
-            size = 10
-        return dialog_dict["messages"][-10:]
+        if size > 5:
+            size = 5
+        return dialog_dict["messages"][-5:]
 
     def set_dialog_messages(self, user_id: int, dialog_messages: list, dialog_id: Optional[str] = None):
         self.check_if_user_exists(user_id, raise_exception=True)

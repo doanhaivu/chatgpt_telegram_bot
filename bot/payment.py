@@ -70,7 +70,7 @@ def get_contract_providers_menu(key:str):
 
 def get_balance_menu(user_id: int):
     db.set_user_attribute(user_id, "last_interaction", datetime.now())
-
+    
     # count total usage statistics
     total_n_spent_dollars = 0
     total_n_used_tokens = 0
@@ -104,8 +104,17 @@ def get_balance_menu(user_id: int):
 
     total_n_spent_dollars += voice_recognition_n_spent_dollars
 
-
-    text = f"You spent <b>{total_n_spent_dollars:.03f}$</b>\n"
+    user_token = db.get_user_token(user_id)
+    active_contract = db.get_user_active_contract(user_id)
+    
+    free_daily = user_token["token_free_daily"]
+    token_daily = user_token["token_daily"]
+    token_pack = user_token["token_pack"]
+    
+    text = f"Your free daily token <b>{free_daily}</b>\n"
+    text += f"Your daily token <b>{token_daily}</b>\n"
+    text += f"Your token_pack <b>{token_pack}</b>\n"
+    text += f"You spent <b>{total_n_spent_dollars:.03f}$</b>\n"
     text += f"You used <b>{total_n_used_tokens}</b> tokens\n\n"
     text += details_text
     
