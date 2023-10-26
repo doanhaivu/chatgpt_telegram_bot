@@ -1,0 +1,62 @@
+available_text_models: ["gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-4", "text-davinci-003"]
+
+info:
+  gpt-3.5-turbo:
+    type: chat_completion
+    name: ChatGPT
+    description: ChatGPT là mô hình nổi tiếng. Nó nhanh và rẻ. Lý tưởng cho các công việc hàng ngày. Nếu có một số công việc mà nó không thể xử lý, hãy thử GPT-4.
+
+    price_per_1000_input_tokens: 0.0015
+    price_per_1000_output_tokens: 0.002
+
+    scores:
+      Smart: 3
+      Fast: 5
+      Cheap: 5
+
+  gpt-3.5-turbo-16k:
+    type: chat_completion
+    name: GPT-16K
+    description: ChatGPT là mô hình nổi tiếng. Nó nhanh và rẻ. Lý tưởng cho các công việc hàng ngày. Nếu có một số công việc mà nó không thể xử lý, hãy thử GPT-4.
+
+    price_per_1000_input_tokens: 0.003
+    price_per_1000_output_tokens: 0.004
+
+    scores:
+      Smart: 3
+      Fast: 5
+      Cheap: 5
+
+  gpt-4:
+    type: chat_completion
+    name: GPT-4
+    description: GPT-4 là mô hình thông minh nhất và tiên tiến nhất trên thế giới. Nhưng nó chậm hơn và không hiệu quả về chi phí như ChatGPT. Lựa chọn tốt nhất cho các công việc trí tuệ phức tạp.
+
+    price_per_1000_input_tokens: 0.03
+    price_per_1000_output_tokens: 0.06
+
+    scores:
+      Smart: 5
+      Fast: 2
+      Cheap: 2
+
+  text-davinci-003:
+    type: completion
+    name: GPT-3.5
+    description: GPT-3.5 là một mô hình cũ. Thực ra không có lý do gì để sử dụng nó, vì nó đắt hơn và chậm hơn ChatGPT, nhưng chỉ thông minh bằng.
+
+    price_per_1000_input_tokens: 0.02
+    price_per_1000_output_tokens: 0.02
+
+    scores:
+      Smart: 3
+      Fast: 2
+      Cheap: 3
+
+  dalle-2:
+     type: image
+     price_per_1_image: 0.018  # 512x512
+
+  whisper:
+    type: audio
+    price_per_1_min: 0.006

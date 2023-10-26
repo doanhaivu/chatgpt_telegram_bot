@@ -1,0 +1,92 @@
+provider_token:
+  stripe: "284685063:TEST:OTUwYjZiNjJhMjFk"
+
+contracts:
+  weekly:
+    text: "🍉 Weekly | $2.49"
+    contact_type: "Weekly"
+    description: "Gói đăng ký cho bạn 100.000 token mỗi 24 giờ. 100.000 token tương đương khoảng 70 trang (A4) văn bản!"
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $2.49"
+        price: 249
+        method: "card"
+        currency: "USD"
+
+  monthly:
+    text: "🍉 Monthly | $1.35 / week (–45%)"
+    contact_type: "Monthly"
+    description: "Gói đăng ký cho bạn 100.000 token mỗi 24 giờ. 100.000 token tương đương khoảng 70 trang (A4) văn bản!"
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $5.99"
+        price: 599
+        method: "card"
+        currency: "USD"
+
+  yearly:
+    text: "🍉 Yearly | $0.96 / week (–60%)"
+    contact_type: "Yearly"
+    description: "Gói đăng ký cho bạn 100.000 token mỗi 24 giờ. 100.000 token tương đương khoảng 70 trang (A4) văn bản!"
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $49.99"
+        price: 4999
+        method: "card"
+        currency: "USD"
+
+packages:
+  B500k:
+    text: "📦 +500,000 Tokens | $5.99"
+    description: "📦 +500,000 Token | $5.99 \nToken có thể được sử dụng bất cứ lúc nào. Hữu ích khi bạn cần nhiều token cùng một lúc (ví dụ, khi viết sách)\n\nChọn phương thức thanh toán:"
+    token: 500000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $5.99"
+        price: 599
+        method: "card"
+        currency: "USD"
+
+  B1M:
+    text: "📦 +1,000,000 Tokens | $8.99 (-25%)"
+    description: "📦 +1,000,000 Token | $8.99 (-25%) \nToken có thể được sử dụng bất cứ lúc nào. Hữu ích khi bạn cần nhiều token cùng một lúc (ví dụ, khi viết sách)\n\nChọn phương thức thanh toán:"
+    token: 1000000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $8.99"
+        price: 899
+        method: "card"
+        currency: "USD"
+
+  B3M:
+    text: "📦 +3,000,000 Tokens | $19.99 (-45%)"
+    description: "📦 +3,000,000 Token | $19.99 (-45%) \nToken có thể được sử dụng bất cứ lúc nào. Hữu ích khi bạn cần nhiều token cùng một lúc (ví dụ, khi viết sách)\n\nChọn phương thức thanh toán:"
+    token: 3000000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $19.99"
+        price: 1999
+        method: "card"
+        currency: "USD"
+
+  B10M:
+    text: "📦 +10,000,000 Tokens | $59.99 (-50%)"
+    description: "📦 +10,000,000 Token | $59.99 (-50%) \nToken có thể được sử dụng bất cứ lúc nào. Hữu ích khi bạn cần nhiều token cùng một lúc (ví dụ, khi viết sách)\n\nChọn phương thức thanh toán:"
+    token: 10000000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $59.99"
+        price: 5999
+        method: "card"
+        currency: "USD"
+
+  B50M:
+    text: "📦 +50,000,000 Tokens | $249.99 (-60%)"
+    description: "📦 +50,000,000 Token | $249.99 (-60%) \nToken có thể được sử dụng bất cứ lúc nào. Hữu ích khi bạn cần nhiều token cùng một lúc (ví dụ, khi viết sách)\n\nChọn phương thức thanh toán:"
+    token: 50000000
+    providers:
+      stripe:
+        title: "🌏💳 Visa/Mastercard/etc - $249.99"
+        price: 24999
+        method: "card"
+        currency: "USD"
