@@ -1,5 +1,5 @@
 provider_token:
-  stripe: "284685063:TEST:OTUwYjZiNjJhMjFk"
+  stripe: "350862534:LIVE:MGI5NjA3NWVlMWVh"
 
 contracts:
   weekly:
