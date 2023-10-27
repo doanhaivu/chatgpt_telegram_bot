@@ -156,7 +156,8 @@ class Database:
         token_dict = self.user_tokens_collection.find_one({"_id":user_id})
         diff = date.today() - date.fromisoformat(token_dict["last_received_daily"])
         contract = self.get_user_active_contract(user_id)
-        if diff.days >0 and contract != None:
+        if diff.days > 0 and contract != None:
+            token_dict["token_free_daily"] = 5000
             token_dict["token_daily"] = 100000
             token_dict["last_received_daily"] = date.today()
             self.user_tokens_collection.update_one( {"_id": user_id},
@@ -165,10 +166,23 @@ class Database:
                                                             "last_received_daily":str(date.today()),
                                                             "last_update": datetime.now()}
                                                     })
+        if diff.days > 0 and contract == None:
+            token_dict["token_free_daily"] = 5000
+            token_dict["token_daily"] = 0
+            token_dict["last_received_daily"] = date.today()
+            self.user_tokens_collection.update_one( {"_id": user_id},
+                                                    {"$set": {"token_free_daily": 5000,
+                                                            "token_daily":0,
+                                                            "last_received_daily":str(date.today()),
+                                                            "last_update": datetime.now()}
+                                                    })
+            
         return self.user_tokens_collection.find_one({"_id":user_id})
         
     def get_user_active_contract(self, user_id:int):
         user_contract = self.user_contracts_collection.find_one({"_id": user_id})
+        if user_contract == None:
+            return None
         diff = date.today() - (datetime.fromisoformat(str(user_contract["start"])).date()+ timedelta(days=user_contract["contract_len"]))
         if diff.days > 0:
             return None
