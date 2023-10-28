@@ -50,20 +50,20 @@ unlimit_user = config_yaml["unlimit_users"]
 
 # load message
 with open(config_dir / config_env['messages_yml'], 'r', encoding="utf8") as f:
-    messages_yaml = yaml.safe_load(f)
+    messages = yaml.safe_load(f)
     
 #messages
-hi_msg = messages_yaml["hi_msg"]
-nothing_to_retry = messages_yaml["nothing_to_retry"]
-help_message = messages_yaml["help_message"]
-help_group_message = messages_yaml["help_group_message"]
+hi_msg = messages["hi_msg"]
+nothing_to_retry = messages["nothing_to_retry"]
+help_message = messages["help_message"]
+help_group_message = messages["help_group_message"]
 
 #elasticsearch
 elasticsearch_endpoint = config_env['ELASTICSEARCH_ENDPOINT']
 elasticsearch_username = config_env['ELASTICSEARCH_USERNAME']
 elasticsearch_password = config_env['ELASTICSEARCH_PASSWORD']
 
-subsciption_msg = messages_yaml["subsciption_msg"]
+subsciption_msg = messages["subsciption_msg"]
 
 # chat_modes
 # đổi chat_modes để đổi ngôn ngữ

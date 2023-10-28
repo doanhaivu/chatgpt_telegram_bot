@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime,timedelta
 from datetime import date
 import asyncio
 import config
@@ -107,17 +107,17 @@ def get_balance_menu(user_id: int):
     user_token = db.get_user_token(user_id)
     active_contract = db.get_user_active_contract(user_id)
     
-    free_daily = user_token["token_free_daily"]
+    token_free = user_token["token_free_daily"]
     token_daily = user_token["token_daily"]
     token_pack = user_token["token_pack"]
     
-    text = f"Your free daily token <b>{free_daily}</b>\n"
-    text += f"Your daily token <b>{token_daily}</b>\n"
-    text += f"Your token_pack <b>{token_pack}</b>\n"
-    text += f"You spent <b>{total_n_spent_dollars:.03f}$</b>\n"
-    text += f"You used <b>{total_n_used_tokens}</b> tokens\n\n"
-    text += details_text
+    end_date = date.today()
+    subcription = config.messages["subcription_none"]
+    if active_contract is not None:
+        subcription =  config.messages["subcription_not_none"].format(token_daily, end_date)
+        end_date = (active_contract["start"] + timedelta(days=active_contract["contract_len"])).date()
     
+    text = config.messages["balace_menu"].format(token_free, subcription, token_pack)
     keyboard =[]
     
     keyboard.append([InlineKeyboardButton("Subcriptions", callback_data=f"show_contracts_menu")])

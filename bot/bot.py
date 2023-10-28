@@ -132,7 +132,7 @@ async def start_handle(update: Update, context: CallbackContext):
     db.start_new_dialog(user_id)
 
     reply_text = config.hi_msg
-    reply_text += HELP_MESSAGE
+    reply_text += config.help_message
 
     await update.message.reply_text(reply_text, parse_mode=ParseMode.HTML)
     await show_chat_modes_handle(update, context)
@@ -142,7 +142,7 @@ async def help_handle(update: Update, context: CallbackContext):
     await register_user_if_not_exists(update, context, update.message.from_user)
     user_id = update.message.from_user.id
     db.set_user_attribute(user_id, "last_interaction", datetime.now())
-    await update.message.reply_text(HELP_MESSAGE, parse_mode=ParseMode.HTML)
+    await update.message.reply_text(config.help_message, parse_mode=ParseMode.HTML)
 
 
 async def help_group_chat_handle(update: Update, context: CallbackContext):
@@ -697,9 +697,6 @@ async def set_settings_handle(update: Update, context: CallbackContext):
         if str(e).startswith("Message is not modified"):
             pass
 
-
-
-
 async def send_invoice_contract(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
@@ -729,9 +726,7 @@ async def send_invoice_contract(update: Update, context: ContextTypes.DEFAULT_TY
     payment_token = config.config_env[list_params[1]+"_token"]
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
-    await context.bot.send_invoice(
-        chat_id, title, description, payload, payment_token, currency, prices
-    )
+    await context.bot.send_invoice(chat_id, title, description, payload, payment_token, currency, prices)
     
 async def send_invoice_package(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -763,9 +758,7 @@ async def send_invoice_package(update: Update, context: ContextTypes.DEFAULT_TYP
     payment_token = config.config_env[list_params[1]+"_token"]
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
-    await context.bot.send_invoice(
-        chat_id, title, description, payload, payment_token, currency, prices
-    )
+    await context.bot.send_invoice(chat_id, title, description, payload, payment_token, currency, prices)
 
 # after (optional) shipping, it's the pre-checkout
 async def precheckout_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -894,9 +887,7 @@ def run_bot() -> None:
     application.add_handler(PreCheckoutQueryHandler(precheckout_callback))
 
     # Success! Notify your user!
-    application.add_handler(
-        MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment_callback)
-    )
+    application.add_handler(MessageHandler(filters.SUCCESSFUL_PAYMENT, successful_payment_callback))
 
     application.add_error_handler(error_handle)
 

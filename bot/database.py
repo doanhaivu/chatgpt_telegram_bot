@@ -149,33 +149,45 @@ class Database:
                 "token_free_daily":5000,
                 "token_daily":0, #from contract
                 "last_received_daily": str(date.today() - timedelta(days=1)),
+                "last_received_contract_daily": str(date.today() - timedelta(days=1)),
                 "token_pack": 0, #from token packages
                 "last_update": datetime.now()
             }
             self.user_tokens_collection.insert_one(token_dict)
         token_dict = self.user_tokens_collection.find_one({"_id":user_id})
-        diff = date.today() - date.fromisoformat(token_dict["last_received_daily"])
+        last_received_daily = str(date.today()- timedelta(days=1))
+        last_received_contract_daily = str(date.today()- timedelta(days=1))
+        if token_dict.get("last_received_daily", None) is not None:
+            last_received_daily = token_dict["last_received_daily"]
+        if token_dict.get("last_received_contract_daily", None) is not None:
+            last_received_contract_daily = token_dict["last_received_contract_daily"]
+        
+        diff_free = date.today() - date.fromisoformat(last_received_daily)
+        diff_contract = date.today() - date.fromisoformat(last_received_contract_daily)
         contract = self.get_user_active_contract(user_id)
-        if diff.days > 0 and contract != None:
+        if diff_free.days > 0 and contract != None:
             token_dict["token_free_daily"] = 5000
-            token_dict["token_daily"] = 100000
             token_dict["last_received_daily"] = date.today()
             self.user_tokens_collection.update_one( {"_id": user_id},
                                                     {"$set": {"token_free_daily": 5000,
-                                                            "token_daily":100000,
                                                             "last_received_daily":str(date.today()),
                                                             "last_update": datetime.now()}
                                                     })
-        if diff.days > 0 and contract == None:
-            token_dict["token_free_daily"] = 5000
-            token_dict["token_daily"] = 0
-            token_dict["last_received_daily"] = date.today()
-            self.user_tokens_collection.update_one( {"_id": user_id},
-                                                    {"$set": {"token_free_daily": 5000,
-                                                            "token_daily":0,
-                                                            "last_received_daily":str(date.today()),
-                                                            "last_update": datetime.now()}
-                                                    })
+        if diff_contract.days > 0: 
+            if contract != None:
+                token_dict["token_daily"] = 100000
+                token_dict["last_received_contract_daily"] = date.today()
+                self.user_tokens_collection.update_one( {"_id": user_id},
+                                                        {"$set": {"token_daily": 100000,
+                                                                "last_received_contract_daily":str(date.today()),
+                                                                "last_update": datetime.now()}
+                                                        })
+            else:
+                token_dict["token_daily"] = 0
+                self.user_tokens_collection.update_one( {"_id": user_id},
+                                                        {"$set": {"token_daily":0,
+                                                                "last_update": datetime.now()}
+                                                        })
             
         return self.user_tokens_collection.find_one({"_id":user_id})
         

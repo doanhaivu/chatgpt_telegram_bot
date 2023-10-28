@@ -36,3 +36,35 @@ subsciption_msg: |
   ⤷ Đăng ký là lựa chọn hoàn hảo cho công việc hàng ngày
 
  Chọn thời gian đăng ký:
+
+balace_menu: |
+  🟣 Your Free Token:
+    ⤷ Tokens left: <b>{token_free}</b>
+
+  {subcription}
+
+  🟣 Your Token Pack:
+    ⤷ Tokens left: <b>{token_pack}</b>
+
+  Buy Subscription or Tokens Pack to enjoy full functionality of the bot! (tap the button below)
+
+  🍉 Subscription gives you:
+    ⤷ 100,000 tokens per day (that's 50+ A4-pages of text for ChatGPT!)
+    ⤷ ⚡️ Instant replies
+    ⤷ Access to GPT-4
+    ⤷ PRO chat modes: 👩‍🎨 Image Generation, 💋 Eva Elfie, ...
+    ⤷ 🎙 Voice Messages recognition
+    ⤷ Subscription is the perfect option for daily tasks
+
+  📦 Token Pack
+    ⤷ Tokens can be used at any time
+    ⤷ Useful when you need a lot of tokens at once (for example, when writing a book)
+
+subcription_none: |
+  🟣 Your Subscription:
+    ⤷ You have no active subscription
+
+subcription_not_none: |
+  🟣 Your Subscription:
+    ⤷ Token left (today): <b>{token_daily}</b>
+    ⤷ Contract end date: <b>{end_date}</b>
