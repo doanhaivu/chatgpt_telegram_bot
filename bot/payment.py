@@ -147,3 +147,49 @@ async def back_packages_menu(update: Update, context: CallbackContext):
     text, reply_markup = get_packages_menu()
     
     await query.message.edit_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    
+async def show_contracts_menu(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
+    
+    user_id = query.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+
+    text, reply_markup = get_contracts_menu()
+    
+    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+
+async def show_packages_menu(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
+    
+    user_id = query.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+
+    text, reply_markup = get_packages_menu()
+    
+    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    
+async def show_contract_providers_menu(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
+    key = query.data.split("|")[1]
+
+    user_id = query.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+
+    text, reply_markup = get_contract_providers_menu(key)
+    
+    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
+    
+async def show_package_providers_menu(update: Update, context: CallbackContext):
+    query = update.callback_query
+    await query.answer()
+    key = query.data.split("|")[1]
+
+    user_id = query.from_user.id
+    db.set_user_attribute(user_id, "last_interaction", datetime.now())
+
+    text, reply_markup = get_package_providers_menu(key)
+    
+    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)

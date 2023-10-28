@@ -80,6 +80,5 @@ with open(config_dir / config_env['payments_yml'], 'r', encoding="utf8") as f:
     
 contracts = payment_yml["contracts"]
 packages = payment_yml["packages"]
-provider_tokens = payment_yml["provider_token"]
 # files
 help_group_chat_video_path = Path(__file__).parent.parent.resolve() / "static" / "help_group_chat.mp4"

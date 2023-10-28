@@ -172,6 +172,14 @@ async def retry_handle(update: Update, context: CallbackContext):
     db.set_dialog_messages(user_id, dialog_messages, dialog_id=None)  # last message was removed from the context
 
     await message_handle(update, context, message=last_dialog_message["user"], use_new_dialog_timeout=False)
+    
+async def show_balance_handle(update: Update, context: CallbackContext):
+    await register_user_if_not_exists(update, context, update.message.from_user)
+    user_id = update.message.from_user.id
+    
+    text, reply_markup = payment.get_balance_menu(user_id)
+    
+    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
 
 async def message_handle(update: Update, context: CallbackContext, message=None, use_new_dialog_timeout=True):
@@ -690,65 +698,7 @@ async def set_settings_handle(update: Update, context: CallbackContext):
             pass
 
 
-async def show_balance_handle(update: Update, context: CallbackContext):
-    await register_user_if_not_exists(update, context, update.message.from_user)
-    user_id = update.message.from_user.id
-    
-    text, reply_markup = payment.get_balance_menu(user_id)
-    
-    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    
-async def show_contracts_menu(update: Update, context: CallbackContext):
-    query = update.callback_query
-    await query.answer()
-    
-    await register_user_if_not_exists(query, context, query.from_user)
 
-    user_id = query.from_user.id
-    db.set_user_attribute(user_id, "last_interaction", datetime.now())
-
-    text, reply_markup = payment.get_contracts_menu()
-    
-    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-
-async def show_packages_menu(update: Update, context: CallbackContext):
-    query = update.callback_query
-    await query.answer()
-    
-    await register_user_if_not_exists(query, context, query.from_user)
-
-    user_id = query.from_user.id
-    db.set_user_attribute(user_id, "last_interaction", datetime.now())
-
-    text, reply_markup = payment.get_packages_menu()
-    
-    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    
-async def show_contract_providers_menu(update: Update, context: CallbackContext):
-    query = update.callback_query
-    await query.answer()
-    key = query.data.split("|")[1]
-    await register_user_if_not_exists(query, context, query.from_user)
-
-    user_id = query.from_user.id
-    db.set_user_attribute(user_id, "last_interaction", datetime.now())
-
-    text, reply_markup = payment.get_contract_providers_menu(key)
-    
-    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
-    
-async def show_package_providers_menu(update: Update, context: CallbackContext):
-    query = update.callback_query
-    await query.answer()
-    key = query.data.split("|")[1]
-    await register_user_if_not_exists(query, context, query.from_user)
-
-    user_id = query.from_user.id
-    db.set_user_attribute(user_id, "last_interaction", datetime.now())
-
-    text, reply_markup = payment.get_package_providers_menu(key)
-    
-    await query.message.edit_text(text,reply_markup=reply_markup, parse_mode=ParseMode.HTML)
 
 async def send_invoice_contract(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -776,7 +726,7 @@ async def send_invoice_contract(update: Update, context: ContextTypes.DEFAULT_TY
     id = db.add_new_charge_pending(user_id, chat_id, price, list_params[1], "visa")
     # select a payload just for you to recognize its the donation from your bot
     payload = id
-    payment_token = config.provider_tokens[list_params[1]]
+    payment_token = config.config_env[list_params[1]+"_token"]
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
     await context.bot.send_invoice(
@@ -810,7 +760,7 @@ async def send_invoice_package(update: Update, context: ContextTypes.DEFAULT_TYP
     id = db.add_new_package_pending(user_id, chat_id, price, token, list_params[1], "visa")
     # select a payload just for you to recognize its the donation from your bot
     payload = id
-    payment_token = config.provider_tokens[list_params[1]]
+    payment_token = config.config_env[list_params[1]+"_token"]
     # optionally pass need_name=True, need_phone_number=True,
     # need_email=True, need_shipping_address=True, is_flexible=True
     await context.bot.send_invoice(
@@ -930,15 +880,15 @@ def run_bot() -> None:
     application.add_handler(CommandHandler("balance", show_balance_handle, filters=user_filter))
     
     #subscription
-    application.add_handler(CallbackQueryHandler(show_contracts_menu, pattern="^show_contracts_menu"))
-    application.add_handler(CallbackQueryHandler(show_packages_menu, pattern="^show_packages_menu"))
-    application.add_handler(CallbackQueryHandler(show_contract_providers_menu, pattern="^get_contract_providers"))
-    application.add_handler(CallbackQueryHandler(show_package_providers_menu, pattern="^get_package_providers"))
-    application.add_handler(CallbackQueryHandler(send_invoice_contract, pattern="^send_invoice_contract"))
-    application.add_handler(CallbackQueryHandler(send_invoice_package, pattern="^send_invoice_package"))
+    application.add_handler(CallbackQueryHandler(payment.show_contracts_menu, pattern="^show_contracts_menu"))
+    application.add_handler(CallbackQueryHandler(payment.show_packages_menu, pattern="^show_packages_menu"))
+    application.add_handler(CallbackQueryHandler(payment.show_contract_providers_menu, pattern="^get_contract_providers"))
+    application.add_handler(CallbackQueryHandler(payment.show_package_providers_menu, pattern="^get_package_providers"))
     application.add_handler(CallbackQueryHandler(payment.back_balance_menu, pattern="^back_balance_menu"))
     application.add_handler(CallbackQueryHandler(payment.back_contracts_menu, pattern="^back_contracts_menu"))
     application.add_handler(CallbackQueryHandler(payment.back_packages_menu, pattern="^back_packages_menu"))
+    application.add_handler(CallbackQueryHandler(send_invoice_contract, pattern="^send_invoice_contract"))
+    application.add_handler(CallbackQueryHandler(send_invoice_package, pattern="^send_invoice_package"))
     
     # Pre-checkout handler to final check
     application.add_handler(PreCheckoutQueryHandler(precheckout_callback))

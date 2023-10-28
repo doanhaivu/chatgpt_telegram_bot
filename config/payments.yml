@@ -1,6 +1,3 @@
-provider_token:
-  stripe: "350862534:LIVE:MGI5NjA3NWVlMWVh"
-
 contracts:
   weekly:
     text: "🍉 Weekly | $2.49"
