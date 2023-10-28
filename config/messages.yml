@@ -39,12 +39,12 @@ subsciption_msg: |
 
 balace_menu: |
   🟣 Your Free Token:
-    ⤷ Tokens left: <b>{}</b>
+    ⤷ Tokens left: <b>{token_free}</b>
 
-  {}
+  {subcription}
 
   🟣 Your Token Pack:
-    ⤷ Tokens left: <b>{}</b>
+    ⤷ Tokens left: <b>{token_pack}</b>
 
   Buy Subscription or Tokens Pack to enjoy full functionality of the bot! (tap the button below)
 
@@ -66,5 +66,5 @@ subcription_none: |
 
 subcription_not_none: |
   🟣 Your Subscription:
-    ⤷ Token left (today): <b>{}</b>
-    ⤷ Contract end date: <b>{}</b>
+    ⤷ Token left (today): <b>{token_daily}</b>
+    ⤷ Contract end date: <b>{end_date}</b>

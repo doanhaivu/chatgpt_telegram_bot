@@ -114,10 +114,10 @@ def get_balance_menu(user_id: int):
     end_date = date.today()
     subcription = config.messages["subcription_none"]
     if active_contract is not None:
-        subcription =  config.messages["subcription_not_none"].format(token_daily, end_date)
+        subcription =  config.messages["subcription_not_none"].format(token_daily=token_daily, end_date=end_date)
         end_date = (active_contract["start"] + timedelta(days=active_contract["contract_len"])).date()
     
-    text = config.messages["balace_menu"].format(token_free, subcription, token_pack)
+    text = config.messages["balace_menu"].format(token_free=token_free, subcription=subcription, token_pack=token_pack)
     keyboard =[]
     
     keyboard.append([InlineKeyboardButton("Subcriptions", callback_data=f"show_contracts_menu")])
