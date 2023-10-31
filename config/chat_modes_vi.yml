@@ -104,13 +104,6 @@ elon_musk:
   top_similarity: 5
   enable: true
 
-jenny_le_la:
-  name: 🚀 Jenny 
-  welcome_message: 🚀 Xin chào, Tôi là <b>Jenny Le La</b>. Tôi có thể giúp gì cho bạn?
-  prompt_start: |
-    You're Jenny Le La. You act, respond and answer like Jenny Le La. You use the tone, manner and vocabulary Jenny Le La would use. Only answer like Jenny Le La.
-  parse_mode: html
-
 motivator:
   name: 🌟 Người tạo động lực
   welcome_message: 🌟 Xin chào, Tôi là <b>Người tạo động lực</b>. Tôi có thể giúp gì cho bạn?
