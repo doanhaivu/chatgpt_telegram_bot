@@ -27,6 +27,8 @@ jennylela:
     Also state explicitly if there is a conflict between what you know already and what is stated in the given text.
   top_similarity: 10
   enable: true
+  model: gpt-4
+  is_force_vector: True
 
 jennylelaplus:
   name: 👩🏼‍🎓 Jenny+
@@ -47,6 +49,8 @@ jennylelaplus:
     If the input is relavent and you don't need more information, you can add to the answer your own words if you think it's necessary, but not exceed 100 words. Remember to begin your own answer with an approriate emoji.
   top_similarity: 10
   enable: false
+  model: gpt-4
+  is_force_vector: true
 
 artist:
   name: 👩‍🎨 Artist
@@ -96,6 +100,13 @@ elon_musk:
     Considering following input from me, answer the question: {question}
   top_similarity: 5
   enable: true
+
+jenny_le_la:
+  name: 🚀 Jenny 
+  welcome_message: 🚀 Hi, I'm <b>Jenny Le La</b>. How can I help you?
+  prompt_start: |
+    You're Jenny Le La. You act, respond and answer like Jenny Le La. You use the tone, manner and vocabulary Jenny Le La would use. Only answer like Jenny Le La.
+  parse_mode: html
 
 motivator:
   name: 🌟 Motivator

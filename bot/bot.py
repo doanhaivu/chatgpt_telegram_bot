@@ -224,6 +224,7 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
         # in case of CancelledError
         n_input_tokens, n_output_tokens = 0, 0
         current_model = db.get_user_attribute(user_id, "current_model")
+        current_model = config.chat_modes[chat_mode].get("model",current_model)
         try:
             # send placeholder message to user
             placeholder_message = await update.message.reply_text("...")
@@ -304,12 +305,12 @@ async def message_handle(update: Update, context: CallbackContext, message=None,
             await update.message.reply_text(error_text)
             return
         # send message if some messages were removed from the context
-        if n_first_dialog_messages_removed > 0:
-            if n_first_dialog_messages_removed == 1:
-                text = "✍️ <i>Note:</i> Your current dialog is too long, so your <b>first message</b> was removed from the context.\n Send /new command to start new dialog"
-            else:
-                text = f"✍️ <i>Note:</i> Your current dialog is too long, so <b>{n_first_dialog_messages_removed} first messages</b> were removed from the context.\n Send /new command to start new dialog"
-            await update.message.reply_text(text, parse_mode=ParseMode.HTML)
+        # if n_first_dialog_messages_removed > 0:
+        #     if n_first_dialog_messages_removed == 1:
+        #         text = "✍️ <i>Note:</i> Your current dialog is too long, so your <b>first message</b> was removed from the context.\n Send /new command to start new dialog"
+        #     else:
+        #         text = f"✍️ <i>Note:</i> Your current dialog is too long, so <b>{n_first_dialog_messages_removed} first messages</b> were removed from the context.\n Send /new command to start new dialog"
+        #     await update.message.reply_text(text, parse_mode=ParseMode.HTML)
 
     async with user_semaphores[user_id]:
         task = asyncio.create_task(message_handle_fn())

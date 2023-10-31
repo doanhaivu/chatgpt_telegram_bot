@@ -45,19 +45,24 @@ class ChatGPT:
         if chat_mode not in config.chat_modes.keys():
             raise ValueError(f"Chat mode {chat_mode} is not supported")
 
+        is_force_vector = config.chat_modes[chat_mode].get("is_force_vector", False)
         # Get chunks from database.
-        chunks_response = await retrieval_utils.query(message, config.chat_modes[chat_mode]["top_similarity"])
-        chunks = []
-        for result in chunks_response["results"]:
-            for inner_result in result["results"]:
-                chunks.append(inner_result["text"])
+        if is_force_vector:
+            chunks_response = await retrieval_utils.query(message, config.chat_modes[chat_mode]["top_similarity"])
+            chunks = []
+            for result in chunks_response["results"]:
+                for inner_result in result["results"]:
+                    chunks.append(inner_result["text"])
 
         n_dialog_messages_before = len(dialog_messages)
         answer = None
         while answer is None:
             try:
                 if self.model in {"gpt-3.5-turbo-16k", "gpt-3.5-turbo", "gpt-4"}:
-                    messages = self._generate_prompt_messages(message, dialog_messages, chat_mode, chunks)
+                    if is_force_vector:
+                        messages = self._generate_prompt_messages(message, dialog_messages, chat_mode, chunks)
+                    else:
+                        messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
                     r = await openai.ChatCompletion.acreate(
                         model=self.model,
                         messages=messages,
@@ -91,20 +96,25 @@ class ChatGPT:
     async def send_message_stream(self, message, dialog_messages=[], chat_mode="assistant"):
         if chat_mode not in config.chat_modes.keys():
             raise ValueError(f"Chat mode {chat_mode} is not supported")
-
+        
+        is_force_vector = config.chat_modes[chat_mode].get("is_force_vector", False)
         # Get chunks from database.
-        chunks_response = await retrieval_utils.query(message, config.chat_modes[chat_mode]["top_similarity"])
-        chunks = []
-        for result in chunks_response["results"]:
-            for inner_result in result["results"]:
-                chunks.append(inner_result["text"])
+        if is_force_vector:
+            chunks_response = await retrieval_utils.query(message, config.chat_modes[chat_mode]["top_similarity"])
+            chunks = []
+            for result in chunks_response["results"]:
+                for inner_result in result["results"]:
+                    chunks.append(inner_result["text"])
 
         n_dialog_messages_before = len(dialog_messages)
         answer = None
         while answer is None:
             try:
                 if self.model in {"gpt-3.5-turbo-16k", "gpt-3.5-turbo", "gpt-4"}:
-                    messages = self._generate_prompt_messages(message, dialog_messages, chat_mode, chunks)
+                    if is_force_vector:
+                        messages = self._generate_prompt_messages(message, dialog_messages, chat_mode, chunks)
+                    else:
+                        messages = self._generate_prompt_messages(message, dialog_messages, chat_mode)
                     r_gen = await openai.ChatCompletion.acreate(
                         model=self.model,
                         messages=messages,
