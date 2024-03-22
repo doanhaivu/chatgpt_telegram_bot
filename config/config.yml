@@ -15,4 +15,4 @@ limit_question: 100
 limit_token: 50000
 
 #unlimit user, pass user ids here
-unlimit_users: [455075733,1742859642]
+unlimit_users: [455075733,1742859642,6688941450]
