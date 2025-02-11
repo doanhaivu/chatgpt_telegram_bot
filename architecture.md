@@ -7,6 +7,6 @@ flowchart LR
     C -->|Generate Embeddings| D(Embedding Model)
     B -->|Chat Completion| E(LLM)
     C -->|Query| F(Vector Store)
-    F(Chatvector.app) -->|Upsert File| C
+    G(Web app) -->|Upsert File| C
 ```
 
