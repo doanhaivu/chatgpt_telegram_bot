@@ -6,6 +6,7 @@ flowchart LR
     B -->|Query| C(ChatGPT Retrieval Plugin)
     C -->|Generate Embeddings| D(ChatGPT)
     B -->|Chat Completion| D(ChatGPT)
+    C -->|Query| E(Vector Store)
     F(Chatvector.app) -->|Upsert File| C
 ```
 
